@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     "Optimal Schedule Builder web application for UGA students to generate and design optimal academic schedules",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
-
+ // hello
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
