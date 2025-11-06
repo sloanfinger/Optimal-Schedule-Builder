@@ -1,5 +1,6 @@
 "use client";
 
+import { env } from "@/env";
 import serverQuerySchema from "@/schemas/serverQueries";
 import {
   QueryClient as ReactQueryClient,
@@ -51,17 +52,13 @@ function createUseQuery<
       queryFn: () =>
         fetch(
           new URL(
-            `${query.route}?${searchParams}`,
-            /**
-             * TODO: when we can actually connect to the course
-             * information service, we'll store the URL in an
-             * environment variable, and it will be accessible here.
-             */
-            // env.NEXT_PUBLIC_COURSE_INFORMATION_SERVICE
+            `/api/courseInformation${query.route}?${searchParams}`,
+            env.NEXT_PUBLIC_COURSE_INFORMATION_SERVICE
           ),
         )
           .then((res) => res.json())
-          .then((data) => query.result.parseAsync(data)),
+          .then((data) => query.result.parseAsync(data))
+          .catch(console.error),
     });
   };
 }

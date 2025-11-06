@@ -7,61 +7,105 @@ import * as z from "zod";
  * state for that to be possible.
  */
 
-const Building = z.object({
+function join<V extends z.ZodType, R extends Record<string, z.ZodType>>(
+  variables: V,
+  relationships: R,
+) {
+  return z.object(relationships).and(variables);
+}
+
+const BuildingVariables = z.object({
   buildingNumber: z.number().int(),
   name: z.string(),
   grid: z.string(),
-  classes: z.unknown().array(), // TODO: This field represents a join of potentially-circular references
 });
 
-export type Building = z.infer<typeof Building>;
-
-// This interface is defined in `~/services` but is so far unused.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const Class = z.object({
+const ClassVariables = z.object({
   classId: z.number().int(),
   days: z.string(),
   startTime: z.string().datetime(),
   endTime: z.string().datetime(),
   room: z.string(),
   campus: z.string(),
-  courseSection: z.unknown(), // TODO: This field represents a join of potentially-circular references
-  building: z.unknown(), // TODO: This field represents a join of potentially-circular references
+});
+
+const CourseVariables = z
+  .object({
+    courseId: z.number().int(),
+    title: z.string(),
+    subject: z.string(),
+    courseNumber: z.string(),
+    department: z.string(),
+    courseDescription: z.string(),
+    semesters: z.string().array(),
+  })
+  .transform((course) => ({
+    ...course,
+    number: course.courseNumber,
+    courseNumber: course.subject + String(course.courseNumber),
+  }));
+
+const CourseSectionVariables = z.object({
+  id: z.number().int(),
+  courseSectionId: z.number().int(),
+  crn: z.number().int(),
+  sec: z.string(),
+  stat: z.string().length(1),
+  creditHours: z.number().int(),
+  classSize: z.number().int(),
+  seatsAvailable: z.number().int(),
+  year: z.number().int(),
+  daysOfTheWeek: z.string(),
+  startTime: z.string().time(),
+  endTime: z.string().time(),
+  instructor: z.string(),
+  classes: z.unknown().array(),
+});
+
+/**
+ * We define the variables and relationships
+ * in the schemas separately to avoid circular
+ * references.
+ */
+
+const Building = join(BuildingVariables, {
+  classes: join(ClassVariables, {
+    courseSection: join(CourseSectionVariables, {
+      course: join(CourseVariables, {
+        coRequisites: CourseVariables.array(),
+        preRequisites: CourseVariables.array(),
+      }),
+    }),
+  }).array(),
+});
+
+export type Building = z.infer<typeof Building>;
+
+const Class = join(ClassVariables, {
+  building: BuildingVariables,
+  courseSection: join(CourseSectionVariables, {
+    course: join(CourseVariables, {
+      coRequisites: CourseVariables.array(),
+      preRequisites: CourseVariables.array(),
+    }),
+  }),
 });
 
 export type Class = z.infer<typeof Class>;
 
-const Course = z.object({
-  courseId: z.number().int(),
-  subject: z.string(),
-  courseNumber: z.string(),
-  title: z.string(),
-  department: z.string(),
-  courseSections: z.unknown().array(), // TODO: This field represents a join of potentially-circular references
-  courseDescription: z.string(),
-  athenaTitle: z.string(),
-  equivalentCourses: z.unknown().array(), // TODO: This field represents a join of potentially-circular references
-  prerequisiteCourses: z.unknown().array(), // TODO: This field represents a join of potentially-circular references
-  semesterCourseOffered: z.string(),
-  gradingSystem: z.string(),
+const Course = join(CourseVariables, {
+  courseSections: CourseSectionVariables.array(),
+  coRequisites: CourseVariables.array(),
+  preRequisites: CourseVariables.array(),
 });
 
 export type Course = z.infer<typeof Course>;
 
-const CourseSection = z.object({
-  courseSectionId: z.number().int(),
-  crn: z.number().int(),
-  sec: z.number().int(),
-  stat: z.string().length(1),
-  creditHoursLow: z.number(),
-  creditHoursHigh: z.number(),
-  instructor: z.string(),
-  term: z.number().int(),
-  classSize: z.number().int(),
-  seatsAvailable: z.number().int(),
-  year: z.number().int(),
-  course: Course, // TODO: This field represents a join of potentially-circular references
-  class: z.unknown(), // TODO: This field represents a join of potentially-circular references
+const CourseSection = join(CourseSectionVariables, {
+  course: join(CourseVariables, {
+    coRequisites: CourseVariables.array(),
+    preRequisites: CourseVariables.array(),
+  }),
 });
 
 export type CourseSection = z.infer<typeof CourseSection>;
@@ -81,6 +125,45 @@ export type CourseSection = z.infer<typeof CourseSection>;
  * @see https://docs.google.com/document/d/1UCqmfoyiv9WarZpkEv7axqQeUps-_FyH7HGqdeL9mx8/edit?tab=t.0#heading=h.rx2mk3uqskyb
  */
 const queries = {
+  /**
+   * Gets the details of a specified CRN
+   */
+  getSectionDetailsByCRN: {
+    route: "/section-by-crn",
+    params: z.object({
+      /**
+       * @param crn The CRN of the section
+       */
+      crn: z.string(),
+    }),
+    result: CourseSection,
+  },
+  /**
+   * Searches for all course sections whose instructor matches the provided name.
+   */
+  getCoursesByProfessor: {
+    route: "/professor",
+    params: z.object({
+      /**
+       * @param professor Name of the instructor to search for.
+       */
+      professor: z.string(),
+    }),
+    result: Course.array(),
+  },
+  /**
+   * Retrieves an array of courses for a given major.
+   */
+  getCoursesByMajor: {
+    route: "/coursesByMajor",
+    params: z.object({
+      /**
+       * @param major The major identifier for which to select courses (e.g. CSCI)
+       */
+      major: z.string(),
+    }),
+    result: Course.array(),
+  },
   /**
    * Searches for all courses matching the provided term.
    */
@@ -222,46 +305,6 @@ const queries = {
     params: z.object({}),
     result: z.string().array(),
   },
-
-  /**
-   * Searches for all course sections whose instructor matches the provided name.
-   */
-  getCoursesByProfessor: {
-    route: "/professor",
-    params: z.object({
-      /**
-       * @param professor Name of the instructor to search for.
-       */
-      professor: z.string(),
-    }),
-    result: Course.array(),
-  },
-  /**
-   * Retrieves an array of courses for a given major.
-   */
-  getCoursesByMajor: {
-    route: "/coursesByMajor",
-    params: z.object({
-      /**
-       * @param major The major identifier for which to select courses (e.g. CSCI)
-       */
-      major: z.string(),
-    }),
-    result: Course.array(),
-  },
-  /**
-   * Gets the details of a specified CRN
-   */
-  getCourseEntity: {
-    route: "/section-by-crn",
-    params: z.object({
-      /**
-       * @param crn The CRN of the section
-       */
-      crn: z.string(),
-    }),
-    result: CourseSection.array(),
-  },
   /**
    * Retrieves course information based on Athena name.
    */
@@ -314,7 +357,6 @@ const queries = {
     }),
     result: z.number(),
   },
-
   getNumProfessorRatings: {
     route: "/numRatings",
     params: z.object({

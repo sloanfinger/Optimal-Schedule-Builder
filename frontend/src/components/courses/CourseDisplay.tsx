@@ -51,7 +51,7 @@ export default function CourseDisplay({ searchParams }: Props) {
                 key={course.courseId}
                 subject={course.subject}
                 courseNumber={course.courseNumber}
-                courseName={course.athenaTitle}
+                courseName={course.title}
                 onClick={() => handleRemoveCourse(course)}
               />
             ))}

@@ -46,51 +46,13 @@ export default function SearchBySubject({
   const [subject, setSubject] = useState(defaultValue?.subject);
   const dispatchError = useToast(Error);
 
-  const subjectsQuery = useQuery(
-    "getAllSubjects",
-    {},
-    {
-      // TODO: Remove dummy data once a connection can be made to the course information service
-      initialData: ["CSCI", "MATH", "ARTI", "PHYS", "PHIL", "ENGR", "STAT"],
-    },
-  );
+  const subjectsQuery = useQuery("getAllSubjects", {}, {});
 
   const coursesQuery = useQuery(
     "getCoursesByMajor",
     { major: subject ?? "" },
     {
       enabled: subject !== undefined,
-      // TODO: Remove dummy data once a connection can be made to the course information service
-      //@ts-expect-error Dummy data
-      initialData:
-        subject === "CSCI"
-          ? [
-              {
-                athenaTitle: "Software Development",
-                courseNumber: "1302",
-                courseId: 1302,
-                subject: "CSCI",
-              },
-              {
-                athenaTitle: "Systems Programming",
-                courseNumber: "1730",
-                courseId: 1730,
-                subject: "CSCI",
-              },
-              {
-                athenaTitle: "Data Structures",
-                courseNumber: "2720",
-                courseId: 2720,
-                subject: "CSCI",
-              },
-              {
-                athenaTitle: "Web Programming",
-                courseNumber: "4300",
-                courseId: 4300,
-                subject: "CSCI",
-              },
-            ]
-          : [],
     },
   );
 
@@ -102,8 +64,8 @@ export default function SearchBySubject({
   const courses = useMemo(
     () =>
       coursesQuery.data?.map((course) => ({
-        value: course.courseId.toString(),
-        content: `(${course.courseNumber}) ${course.athenaTitle}`,
+        value: course.courseNumber,
+        content: `(${course.number}) ${course.title}`,
       })),
     [coursesQuery.data],
   );
