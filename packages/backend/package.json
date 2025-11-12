@@ -22,6 +22,8 @@
   "devDependencies": {
     "@types/react": "^18.3.18",
     "orval": "^7.16.0",
+    "prettier-plugin-groovy": "^0.2.1",
+    "prettier-plugin-properties": "^0.3.0",
     "react": "^18.3.1",
     "swr": "^2.3.6"
   },
