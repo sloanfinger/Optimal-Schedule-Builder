@@ -13,10 +13,11 @@ import java.util.List;
  * @param walking         The user uses walking as a means of transportation.
  *
  */
-public record HConstraints(List<Course> excludedCourses,
-                           List<Section> excludedSections,
-                           String campus,
-                           int minCreditHours,
-                           int maxCreditHours,
-                           boolean walking) {
-}
+public record HConstraints(
+  List<Course> excludedCourses,
+  List<Section> excludedSections,
+  String campus,
+  int minCreditHours,
+  int maxCreditHours,
+  boolean walking
+) {}

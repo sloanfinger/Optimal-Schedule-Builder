@@ -1,0 +1,32 @@
+{
+  "name": "@repo/backend",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    "./*": {
+      "react-server": "./dist/server/*/index.ts",
+      "import": "./dist/client/*/index.ts"
+    }
+  },
+  "dependencies": {
+    "@repo/bulletin": "workspace:*",
+    "@repo/course-information": "workspace:*",
+    "@repo/professor-rating": "workspace:*"
+  },
+  "scripts": {
+    "build": "turbo generateOpenApiclient",
+    "generateOpenApiClient": "orval",
+    "dev": "turbo watch dev:generateOpenApiClient",
+    "dev:generateOpenApiClient": "orval"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.18",
+    "orval": "^7.16.0",
+    "react": "^18.3.1",
+    "swr": "^2.3.6"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "swr": "^2.3.6"
+  }
+}

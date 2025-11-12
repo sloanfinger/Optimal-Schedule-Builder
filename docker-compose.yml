@@ -1,25 +1,143 @@
-# Created by JP Park
-# Last maintained by JP Park
-
-version: "1.0"
-
 services:
-  config-server:
-    image: # TODO
-    container_name: # TODO
-    ports:
-      -  # TODO
+  mysql:
+    image: mysql:8.0
     environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-devdogs}
+      MYSQL_TCP_PORT: ${MYSQL_PORT:-3306}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: on-failure:3
 
-  eureka-server:
-    image: # TODO
-    container_name: # TODO
+  selenium:
+    image: selenium/standalone-chrome:latest
+    healthcheck:
+      test: ["CMD", "curl", "-f", "localhost:4444"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: on-failure:3
+
+  nginx:
+    image: nginx:latest
     ports:
-      -  # TODO
+      - 8080:80
+    volumes:
+      - type: bind
+        source: ./nginx.local.conf
+        target: /etc/nginx/conf.d/default.conf
+        read_only: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "localhost/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: on-failure:3
+
+  bulletin:
+    image: gradle:latest
     environment:
+      MYSQL_USER: ${MYSQL_USER:-root}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
+      MYSQL_HOST: ${MYSQL_HOST:-localhost}
+      MYSQL_PORT: ${MYSQL_PORT:-3306}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-devdogs}
+      MYSQL_JPA_BEHAVIOR: ${MYSQL_JPA_BEHAVIOR:-create-drop}
+    volumes:
+      - type: bind
+        source: ./services/bulletin/dist
+        target: /app/dist
+      - type: bind
+        source: ./services/bulletin/src
+        target: /app/src
+        read_only: true
+      - type: bind
+        source: ./services/bulletin/build.gradle
+        target: /app/build.gradle
+        read_only: true
+      - type: bind
+        source: ./services/bulletin/settings.gradle
+        target: /app/settings.gradle
+        read_only: true
+    working_dir: /app
+    command: gradle clean bootRun
+    depends_on:
+      mysql:
+        condition: service_healthy
+      selenium:
+        condition: service_healthy
+      nginx:
+        condition: service_healthy
 
-  api-gateway:
-    image: # TODO
-    container_name: # TODO
-    ports:
-      -  # TODO
+  course-information:
+    image: gradle:latest
+    environment:
+      MYSQL_USER: ${MYSQL_USER:-root}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
+      MYSQL_HOST: ${MYSQL_HOST:-localhost}
+      MYSQL_PORT: ${MYSQL_PORT:-3306}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-devdogs}
+      MYSQL_JPA_BEHAVIOR: ${MYSQL_JPA_BEHAVIOR:-create-drop}
+    volumes:
+      - type: bind
+        source: ./services/course-information/dist
+        target: /app/dist
+      - type: bind
+        source: ./services/course-information/src
+        target: /app/src
+        read_only: true
+      - type: bind
+        source: ./services/course-information/build.gradle
+        target: /app/build.gradle
+        read_only: true
+      - type: bind
+        source: ./services/course-information/settings.gradle
+        target: /app/settings.gradle
+        read_only: true
+    working_dir: /app
+    command: gradle clean bootRun
+    depends_on:
+      mysql:
+        condition: service_healthy
+      selenium:
+        condition: service_healthy
+      nginx:
+        condition: service_healthy
+
+  professor-rating:
+    image: gradle:latest
+    environment:
+      MYSQL_USER: ${MYSQL_USER:-root}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
+      MYSQL_HOST: ${MYSQL_HOST:-localhost}
+      MYSQL_PORT: ${MYSQL_PORT:-3306}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-devdogs}
+      MYSQL_JPA_BEHAVIOR: ${MYSQL_JPA_BEHAVIOR:-create-drop}
+    volumes:
+      - type: bind
+        source: ./services/professor-rating/dist
+        target: /app/dist
+      - type: bind
+        source: ./services/professor-rating/src
+        target: /app/src
+        read_only: true
+      - type: bind
+        source: ./services/professor-rating/build.gradle
+        target: /app/build.gradle
+        read_only: true
+      - type: bind
+        source: ./services/professor-rating/settings.gradle
+        target: /app/setting.gradle
+        read_only: true
+    working_dir: /app
+    command: gradle clean bootRun
+    depends_on:
+      mysql:
+        condition: service_healthy
+      selenium:
+        condition: service_healthy
+      nginx:
+        condition: service_healthy

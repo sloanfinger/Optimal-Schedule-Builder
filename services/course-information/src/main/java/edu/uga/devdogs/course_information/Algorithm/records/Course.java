@@ -8,6 +8,4 @@ import java.util.List;
  * @param courseCode The unique code identifying the course.
  * @param sections   The sections available for this course.
  */
-public record Course(String courseCode,
-                     List<Section> sections) {
-}
+public record Course(String courseCode, List<Section> sections) {}

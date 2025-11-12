@@ -1,0 +1,43 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "globalPassThroughEnv": [
+    "SKIP_ENV_VALIDATION",
+    "MYSQL_USER",
+    "MYSQL_PASSWORD",
+    "MYSQL_HOST",
+    "MYSQLPORT",
+    "MYSQL_DATABASE",
+    "MYSQL_JPA_BEHAVIOR"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "build/**", "bin/**", "dist/**"]
+    },
+    "generateOpenApiDocs": {
+      "persistent": false,
+      "outputs": ["dist/openapi.json"]
+    },
+    "generateOpenApiClient": {
+      "dependsOn": ["^generateOpenApiDocs"],
+      "env": ["NEXT_PUBLIC_API_BASE_URL"],
+      "inputs": ["src/**", "build.gradle", "settings.gradle"],
+      "outputs": ["dist/**"]
+    },
+    "dev": {
+      "persistent": true
+    },
+    "dev:bootRun": {
+      "persistent": true
+    },
+    "dev:generateOpenApiDocs": {
+      "inputs": ["src/**", "build.gradle", "settings.gradle"],
+      "outputs": ["dist/openapi.json"]
+    },
+    "dev:generateOpenApiClient": {
+      "dependsOn": ["^dev:generateOpenApiDocs"],
+      "inputs": ["orval.config.js"],
+      "outputs": ["dist/**"]
+    }
+  }
+}

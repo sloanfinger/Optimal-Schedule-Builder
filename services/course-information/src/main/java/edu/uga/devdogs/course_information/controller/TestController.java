@@ -8,16 +8,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class TestController {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+  @Autowired
+  private JdbcTemplate jdbcTemplate;
 
-    @GetMapping("/test-db")
-    public String testDatabase() {
-        try {
-            jdbcTemplate.execute("SELECT 1");
-            return "Database connection is working!";
-        } catch (Exception e) {
-            return "Database connection failed: " + e.getMessage();
-        }
+  @GetMapping("/test-db")
+  public String testDatabase() {
+    try {
+      jdbcTemplate.execute("SELECT 1");
+      return "Database connection is working!";
+    } catch (Exception e) {
+      return "Database connection failed: " + e.getMessage();
     }
+  }
 }

@@ -14,11 +14,12 @@ import java.util.List;
  * @param buildingName The name of the building where the class is held.
  * @param campus       The campus the course takes place at.
  */
-public record Class(int crn,
-                    List<DayOfWeek> days,
-                    LocalTime startTime,
-                    LocalTime endTime,
-                    String buildingName,
-                    String campus,
-                    String buildingNumber) {
-}
+public record Class(
+  int crn,
+  List<DayOfWeek> days,
+  LocalTime startTime,
+  LocalTime endTime,
+  String buildingName,
+  String campus,
+  String buildingNumber
+) {}

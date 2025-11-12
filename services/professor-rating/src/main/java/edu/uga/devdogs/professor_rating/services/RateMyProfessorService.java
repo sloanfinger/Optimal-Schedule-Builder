@@ -1,6 +1,6 @@
 package edu.uga.devdogs.professor_rating.services;
-import org.springframework.stereotype.Service;
 
+import org.springframework.stereotype.Service;
 
 /**
  * Service class that handles business logic for the RateMyProfessor (RMP) service
@@ -12,12 +12,13 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class RateMyProfessorService {
-    /**
-     * Placeholder business logic method for future implementation.
-     * This method will handle tasks related to data fetching, transformation,
-     * and interaction between the database and the API.
-     */
-    public void someBusinessLogic() {
-        // Service logic goes here
-    }
+
+  /**
+   * Placeholder business logic method for future implementation.
+   * This method will handle tasks related to data fetching, transformation,
+   * and interaction between the database and the API.
+   */
+  public void someBusinessLogic() {
+    // Service logic goes here
+  }
 }

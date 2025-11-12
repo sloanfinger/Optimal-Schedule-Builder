@@ -1,0 +1,14 @@
+{
+  "name": "@repo/professor-rating",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": "./dist/openapi.json"
+  },
+  "scripts": {
+    "generateOpenApiDocs": "docker compose run --rm professor-rating gradle generateOpenApiDocs",
+    "dev": "turbo watch dev:bootRun dev:generateOpenApiDocs",
+    "dev:bootRun": "docker compose up professor-rating --build",
+    "dev:generateOpenApiDocs": "docker compose exec professor-rating gradle generateOpenApiDocs"
+  }
+}

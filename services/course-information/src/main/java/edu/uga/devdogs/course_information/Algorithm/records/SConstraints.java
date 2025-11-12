@@ -13,8 +13,8 @@ import java.time.LocalTime;
  *
  */
 public record SConstraints(
-                           DayOfWeek gapDay,
-                           LocalTime prefStartTime,
-                           LocalTime prefEndTime,
-                           boolean showFilledClasses) {
-}
+  DayOfWeek gapDay,
+  LocalTime prefStartTime,
+  LocalTime prefEndTime,
+  boolean showFilledClasses
+) {}

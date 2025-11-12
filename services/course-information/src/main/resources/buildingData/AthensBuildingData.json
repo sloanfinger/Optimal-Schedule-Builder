@@ -3,14 +3,14 @@
     "Address": "",
     "Name": "NCRR",
     "Longitude": -83.37477185,
-    "Latitude": 33.95143912, 
+    "Latitude": 33.95143912,
     "Building Code": "NCRR"
   },
   {
     "Address": "",
     "Name": "TBA",
     "Longitude": -83.37477185,
-    "Latitude": 33.95143912, 
+    "Latitude": 33.95143912,
     "Building Code": "TBA"
   },
   {
@@ -626,7 +626,7 @@
     "Address": "110 Cedar St",
     "Name": "Poultry Science",
     "Longitude": -83.3725588,
-    "Latitude": 33.94680,
+    "Latitude": 33.9468,
     "Building Code": "1025"
   },
 

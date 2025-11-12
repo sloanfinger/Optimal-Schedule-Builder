@@ -1,0 +1,14 @@
+{
+  "name": "@repo/bulletin",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": "./dist/openapi.json"
+  },
+  "scripts": {
+    "generateOpenApiDocs": "docker compose run --rm bulletin gradle generateOpenApiDocs",
+    "dev": "turbo watch dev:bootRun dev:generateOpenApiDocs",
+    "dev:bootRun": "docker compose up bulletin --build",
+    "dev:generateOpenApiDocs": "docker compose exec bulletin gradle generateOpenApiDocs"
+  }
+}

@@ -8,6 +8,7 @@ import java.util.Map;
  * @param courses   The array of courses in the sample data.
  * @param distances The distances between buildings on campus.
  */
-public record SampleData(Map<String, Course> courses,
-                         Map<String, Map<String, Double>> distances) {
-}
+public record SampleData(
+  Map<String, Course> courses,
+  Map<String, Map<String, Double>> distances
+) {}

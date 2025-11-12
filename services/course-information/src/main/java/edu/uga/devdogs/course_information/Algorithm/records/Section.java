@@ -10,8 +10,9 @@ import java.util.List;
  * @param professor  The professor teaching this section.
  * @param classes    The array of classes associated with this section.
  */
-public record Section(String courseCode,
-                      int crn,
-                      Professor professor,
-                      List<Class> classes) {
-}
+public record Section(
+  String courseCode,
+  int crn,
+  Professor professor,
+  List<Class> classes
+) {}

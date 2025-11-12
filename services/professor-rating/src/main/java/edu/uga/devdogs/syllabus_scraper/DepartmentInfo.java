@@ -5,46 +5,47 @@
  * the corresponding class course code (ex. CSCI) with its prefix (CS)
  */
 public class DepartmentInfo {
-    private String departmentCode;
-    private String departmentName;
 
-    /**
-     * The data needed to hold the department information
-     * @param departmentCode code to identify which option to select on the UGA syllabus site
-     * @param departmentName name of the department
-     */
-    public DepartmentInfo(String departmentCode, String departmentName) {
-        this.departmentCode = departmentCode;
-        this.departmentName = departmentName;
-    }
+  private String departmentCode;
+  private String departmentName;
 
-    /**
-     * @return the department code
-     */
-    public String getDepartmentCode() {
-        return departmentCode;
-    }
+  /**
+   * The data needed to hold the department information
+   * @param departmentCode code to identify which option to select on the UGA syllabus site
+   * @param departmentName name of the department
+   */
+  public DepartmentInfo(String departmentCode, String departmentName) {
+    this.departmentCode = departmentCode;
+    this.departmentName = departmentName;
+  }
 
-    /**
-     * Sets the department code
-     * @param departmentCode the department code
-     */
-    public void setDepartmentCode(String departmentCode) {
-        this.departmentCode = departmentCode;
-    }
+  /**
+   * @return the department code
+   */
+  public String getDepartmentCode() {
+    return departmentCode;
+  }
 
-    /**
-     * @return the department name
-     */
-    public String getDepartmentName() {
-        return departmentName;
-    }
+  /**
+   * Sets the department code
+   * @param departmentCode the department code
+   */
+  public void setDepartmentCode(String departmentCode) {
+    this.departmentCode = departmentCode;
+  }
 
-    /**
-     * Sets the department name
-     * @param departmentName the department name
-     */
-    public void setDepartmentName(String departmentName) {
-        this.departmentName = departmentName;
-    }
+  /**
+   * @return the department name
+   */
+  public String getDepartmentName() {
+    return departmentName;
+  }
+
+  /**
+   * Sets the department name
+   * @param departmentName the department name
+   */
+  public void setDepartmentName(String departmentName) {
+    this.departmentName = departmentName;
+  }
 }
