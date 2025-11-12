@@ -2,7 +2,8 @@
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
-    "down": "docker compose down -v"
+    "down": "docker compose down -v",
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "prettier": "^3.5.3",

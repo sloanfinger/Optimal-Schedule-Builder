@@ -4,6 +4,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-password}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-devdogs}
+      MYSQL_TCP_PORT: ${MYSQL_PORT:-3306}
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -13,21 +14,21 @@ services:
 
   selenium:
     image: selenium/standalone-chrome:latest
-    restart: on-failure:3
     healthcheck:
       test: ["CMD", "curl", "-f", "localhost:4444"]
       interval: 10s
       timeout: 5s
-      retries: 3
+      retries: 5
+    restart: on-failure:3
 
   nginx:
     image: nginx:latest
     ports:
-      - "${API_PORT:-8080}:80"
+      - 8080:80
     volumes:
       - type: bind
-        source: ./nginx
-        target: /etc/nginx/conf.d
+        source: ./nginx.local.conf
+        target: /etc/nginx/conf.d/default.conf
         read_only: true
     healthcheck:
       test: ["CMD", "curl", "-f", "localhost/health"]
@@ -38,6 +39,13 @@ services:
   
   bulletin:
     image: gradle:latest
+    environment:
+      MYSQL_USER: ${MYSQL_USER:-root}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
+      MYSQL_HOST: ${MYSQL_HOST:-localhost}
+      MYSQL_PORT: ${MYSQL_PORT:-3306}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-devdogs}
+      MYSQL_JPA_BEHAVIOR: ${MYSQL_JPA_BEHAVIOR:-create-drop}
     volumes:
       - type: bind
         source: ./services/bulletin/dist
@@ -66,6 +74,13 @@ services:
   
   course-information:
     image: gradle:latest
+    environment:
+      MYSQL_USER: ${MYSQL_USER:-root}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
+      MYSQL_HOST: ${MYSQL_HOST:-localhost}
+      MYSQL_PORT: ${MYSQL_PORT:-3306}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-devdogs}
+      MYSQL_JPA_BEHAVIOR: ${MYSQL_JPA_BEHAVIOR:-create-drop}
     volumes:
       - type: bind
         source: ./services/course-information/dist
@@ -94,6 +109,13 @@ services:
   
   professor-rating:
     image: gradle:latest
+    environment:
+      MYSQL_USER: ${MYSQL_USER:-root}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
+      MYSQL_HOST: ${MYSQL_HOST:-localhost}
+      MYSQL_PORT: ${MYSQL_PORT:-3306}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-devdogs}
+      MYSQL_JPA_BEHAVIOR: ${MYSQL_JPA_BEHAVIOR:-create-drop}
     volumes:
       - type: bind
         source: ./services/professor-rating/dist
