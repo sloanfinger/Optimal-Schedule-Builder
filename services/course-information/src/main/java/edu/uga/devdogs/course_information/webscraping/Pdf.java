@@ -106,7 +106,10 @@ public class Pdf {
     List<String> pageList = new ArrayList<String>(
       Arrays.asList(page.split("\n"))
     );
-    pageList = pageList.subList(Math.min(bottomOffset, topOffset), Math.max(bottomOffset, topOffset)); //strips unnecessary data
+    pageList = pageList.subList(
+      Math.min(bottomOffset, topOffset),
+      Math.max(bottomOffset, topOffset)
+    ); //strips unnecessary data
 
     String header = ""; // subject, course number, course title, department
     String prevContent = "";
@@ -149,7 +152,6 @@ public class Pdf {
       Arrays.asList(content.split(" "))
     );
 
-    
     //variables from header
     String subject = headerList.get(0);
     String number = headerList.get(1);

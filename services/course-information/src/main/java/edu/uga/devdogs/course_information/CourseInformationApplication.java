@@ -23,9 +23,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -136,7 +136,10 @@ public class CourseInformationApplication {
     return args -> {
       ChromeOptions options = new ChromeOptions();
       options.addArguments("--headless");
-      WebDriver driver = new RemoteWebDriver(new URL("http://selenium:4444"), options);
+      WebDriver driver = new RemoteWebDriver(
+        new URL("http://selenium:4444"),
+        options
+      );
       DescriptionScraper scraper = new DescriptionScraper(driver);
 
       List<Course2> courses = Pdf.parsePdf("spring", inputDirectory);
@@ -160,7 +163,6 @@ public class CourseInformationApplication {
 
         processedCrns.add(crn);
 
-        
         String courseKey = course.getSubject() + "-" + course.getCourseNumber();
         if (processedCourses.contains(courseKey)) continue;
 

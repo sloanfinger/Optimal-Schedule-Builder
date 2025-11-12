@@ -36,7 +36,7 @@ services:
       timeout: 5s
       retries: 5
     restart: on-failure:3
-  
+
   bulletin:
     image: gradle:latest
     environment:
@@ -71,7 +71,7 @@ services:
         condition: service_healthy
       nginx:
         condition: service_healthy
-  
+
   course-information:
     image: gradle:latest
     environment:
@@ -106,7 +106,7 @@ services:
         condition: service_healthy
       nginx:
         condition: service_healthy
-  
+
   professor-rating:
     image: gradle:latest
     environment:
