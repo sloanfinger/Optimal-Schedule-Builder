@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export function Footer() {
   return (
-    <footer className="m-4 flex flex-row items-center justify-center gap-y-0 rounded-md border-2 border-neutral-500 bg-neutral-200 px-4 py-0 py-3 text-neutral-600 dark:border-neutral-400 dark:bg-dm-light-gray sm:gap-y-1 sm:py-2 md:gap-x-4 lg:gap-x-6 lg:px-6">
+    <footer className="dark:bg-dm-light-gray m-4 flex flex-row items-center justify-center gap-y-0 rounded-md border-2 border-neutral-500 bg-neutral-200 px-4 py-0 py-3 text-neutral-600 sm:gap-y-1 sm:py-2 md:gap-x-4 lg:gap-x-6 lg:px-6 dark:border-neutral-400">
       <nav className="contents">
         <div className="flex w-1/5 flex-col justify-start gap-x-4 gap-y-4 text-xl sm:flex-row sm:gap-y-0 sm:text-base">
           <a
@@ -56,7 +56,7 @@ export function Footer() {
           <a
             title="Instagram"
             rel="noopener"
-            className="flex items-center justify-end justify-center px-2 text-4xl text-neutral-500 hover:text-slate-900 dark:text-white dark:hover:text-slate-300 sm:text-2xl"
+            className="flex items-center justify-end justify-center px-2 text-4xl text-neutral-500 hover:text-slate-900 sm:text-2xl dark:text-white dark:hover:text-slate-300"
             href="https://www.instagram.com/devdogs_uga/"
             target="_blank"
           >
@@ -65,7 +65,7 @@ export function Footer() {
           <a
             title="LinkedIn"
             rel="noopener"
-            className="flex items-center justify-start justify-center px-2 text-4xl text-neutral-500 hover:text-slate-900 dark:text-white dark:hover:text-slate-300 sm:text-2xl"
+            className="flex items-center justify-start justify-center px-2 text-4xl text-neutral-500 hover:text-slate-900 sm:text-2xl dark:text-white dark:hover:text-slate-300"
             href="https://www.linkedin.com/company/devdogs-uga/"
             target="_blank"
           >

@@ -264,38 +264,45 @@ public class CourseInfoController {
     }
   }
 
-    /**
-     * Retrieves coordinates associated with a particular building code of a building at UGA.
-     *
-     * @param buildingCode Building number stored as a string
-     * @return List of all available subjects as strings
-     */
-    @Operation(summary = "Get coordinates based on building numbers", description = "Retrieves coordinates associated with a particular building code.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Coordinates found"),
-            @ApiResponse(responseCode = "400", description = "Invalid request"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @GetMapping("/coordinates")
-    @Tag(name="course-information")
-    public ResponseEntity<List<String>> getCoordinatesByBuildingCode(@RequestParam(value="buildingCode",
-            required = true) String buildingCode) {
-        if (buildingCode == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-        try {
-            List<String> coordinates = new ArrayList<String>();
-            coordinates.add(courseInformationService.getCoordinatesByBuildingCode(buildingCode));
-
-            // Return the list of subject strings if found
-            return ResponseEntity.ok(coordinates);
-
-        } catch (Exception e) {
-
-            // Return 500 if a server error occurs
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+  /**
+   * Retrieves coordinates associated with a particular building code of a
+   * building at UGA.
+   *
+   * @param buildingCode Building number stored as a string
+   * @return List of all available subjects as strings
+   */
+  @Operation(
+    summary = "Get coordinates based on building numbers",
+    description = "Retrieves coordinates associated with a particular building code."
+  )
+  @ApiResponses(
+    value = {
+      @ApiResponse(responseCode = "200", description = "Coordinates found"),
+      @ApiResponse(responseCode = "400", description = "Invalid request"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"),
     }
+  )
+  @GetMapping("/coordinates")
+  @Tag(name = "course-information")
+  public ResponseEntity<List<String>> getCoordinatesByBuildingCode(
+    @RequestParam(value = "buildingCode", required = true) String buildingCode
+  ) {
+    if (buildingCode == null) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    }
+    try {
+      List<String> coordinates = new ArrayList<String>();
+      coordinates.add(
+        courseInformationService.getCoordinatesByBuildingCode(buildingCode)
+      );
+
+      // Return the list of subject strings if found
+      return ResponseEntity.ok(coordinates);
+    } catch (Exception e) {
+      // Return 500 if a server error occurs
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+    }
+  }
 
   /**
    * Retrieves a list of all instructors at UGA
@@ -429,7 +436,7 @@ public class CourseInfoController {
   /**
    * Returns a list of recommended CRNS given paramters.
    *
-   * @param inputCourseCrns     Potentials CRNs for a schedule
+   * @param inputCourseNumbers  Potential course numbers for a schedule
    * @param gapDay              Day of the week to leave open
    * @param prefStartTime       Preferred start time for the schedule
    * @param prefEndTime         Preferred end time for the schedule
@@ -455,12 +462,12 @@ public class CourseInfoController {
   @GetMapping("/get-recommended-schedules")
   @Tag(name = "course-information")
   public ResponseEntity<List<List<Integer>>> getRecommendedSchedules(
-    List<Integer> inputCourseCrns,
+    List<String> inputCourseNumbers,
     String gapDay,
     int prefStartTime,
     int prefEndTime,
     boolean showFilledClasses,
-    List<Integer> excludedCourseCrns,
+    List<String> excludedCourseIDs,
     List<Integer> excludedSectionCrns,
     String inputCampus,
     int minCreditHours,
@@ -471,47 +478,18 @@ public class CourseInfoController {
       // Returns a list of recommended schedules based on input parameters
       List<List<Integer>> recommendedSchedules =
         courseInformationService.getRecommendedSchedules(
-          inputCourseCrns,
+          inputCourseNumbers,
           gapDay,
           prefStartTime,
           prefEndTime,
           showFilledClasses,
-          excludedCourseCrns,
+          excludedCourseIDs,
           excludedSectionCrns,
           inputCampus,
           minCreditHours,
           maxCreditHours,
           walking
         );
-    /**
-     * Returns a list of recommended CRNS given paramters.
-     *
-     * @param inputCourseNumbers Potential course numbers for a schedule
-     * @param gapDay Day of the week to leave open
-     * @param prefStartTime Preferred start time for the schedule
-     * @param prefEndTime Preferred end time for the schedule
-     * @param showFilledClasses Whether to show filled classes
-     * @param excludedCourseCrns List of CRNs to exclude from the schedule
-     * @param excludedSectionCrns List of section CRNs to exclude from the schedule 
-     * @param inputCampus Campus to consider for the schedule
-     * @param minCreditHours Minimum number of credit hours for the schedule
-     * @param maxCreditHours Maximum number of credit hours for the schedule
-     * @param walking Whether to consider walking time between classes
-     * @return returns a list of lists of integers representing recommended CRNs
-     */
-    @Operation(summary = "get recommended schedules", description = "Returns a list of recommended CRNS based on input parameters.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Sections found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    @GetMapping("/get-recommended-schedules")
-    @Tag(name="course-information")
-    public ResponseEntity<List<List<Integer>>> getRecommendedSchedules(List<String> inputCourseNumbers, String gapDay, int prefStartTime, int prefEndTime, boolean showFilledClasses,
-    List<String> excludedCourseIDs, List<Integer> excludedSectionCrns, String inputCampus, int minCreditHours, int maxCreditHours, boolean walking) {
-        try {
-            // Returns a list of recommended schedules based on input parameters
-            List<List<Integer>> recommendedSchedules = courseInformationService.getRecommendedSchedules(inputCourseNumbers, gapDay, prefStartTime, prefEndTime, showFilledClasses,
-                    excludedCourseIDs, excludedSectionCrns, inputCampus, minCreditHours, maxCreditHours, walking);
 
       // Return the section if found
       return ResponseEntity.ok(recommendedSchedules);

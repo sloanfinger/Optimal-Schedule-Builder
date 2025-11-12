@@ -41,7 +41,7 @@ export default function MyPlans() {
   };
 
   return (
-    <div className="min-h-screen bg-barely-pink">
+    <div className="bg-barely-pink min-h-screen">
       <Navbar />
 
       <div className="z-1 mb-0 ml-[10%] mr-auto mt-20 flex h-[8vh] w-[25%] overflow-y-auto rounded-t-lg border-l-2 border-r-2 border-t-2 border-black bg-red-700">
