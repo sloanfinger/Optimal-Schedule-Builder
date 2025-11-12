@@ -170,12 +170,12 @@ export const QuestionnareForm = () => {
             text="clear"
             type="reset"
             onClick={clearInput}
-            className="w-1/2 border-2 bg-white py-3 text-nearly-black transition ease-in-out hover:border-bulldog-red hover:text-bulldog-red"
+            className="text-nearly-black hover:border-bulldog-red hover:text-bulldog-red w-1/2 border-2 bg-white py-3 transition ease-in-out"
           />
           <Button
             text="submit"
             type="submit"
-            className="w-1/2 border-dusty-pink py-3 text-white transition ease-in-out hover:border-2 hover:border-nearly-black hover:bg-green-400 hover:text-nearly-black"
+            className="border-dusty-pink hover:border-nearly-black hover:text-nearly-black w-1/2 py-3 text-white transition ease-in-out hover:border-2 hover:bg-green-400"
           />
         </div>
       </form>

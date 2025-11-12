@@ -1,4 +1,4 @@
-import { type WeekSchedule as WeekScheduleType } from "@/types/scheduleTypes";
+import { type WeekSchedule as WeekScheduleType } from "~/types/scheduleTypes";
 
 export const dummyData1: WeekScheduleType = {
   Monday: [

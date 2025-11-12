@@ -1,6 +1,13 @@
-import localStorageSchema from "@/schemas/localStorage";
+import localStorageSchema from "~/schemas/localStorage";
 import { usePathname } from "next/navigation";
-import { type Reducer, useCallback, useEffect, useId, useReducer } from "react";
+import {
+  type Reducer,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useId,
+  useReducer,
+} from "react";
 import type * as z from "zod";
 
 type LocalStorageSchema = typeof localStorageSchema;
@@ -42,7 +49,7 @@ export default function useLocalStorage<K extends keyof LocalStorageSchema>(
   const id = useId();
 
   const schema = localStorageSchema[key];
-  type Schema = z.infer<typeof schema>;
+  type Schema = typeof schema;
 
   const itemKey =
     key +
@@ -53,15 +60,19 @@ export default function useLocalStorage<K extends keyof LocalStorageSchema>(
         : "");
 
   const [state, setState] = useReducer<
-    Reducer<Schema, Schema | ((prevState: Schema) => Schema)>
-  >((prevState, action) => {
-    const newState = schema.parse(
-      action instanceof Function ? action(prevState) : action,
-    );
-    window.localStorage.setItem(itemKey, JSON.stringify(newState));
+    z.infer<Schema>,
+    [SetStateAction<z.infer<Schema>>]
+  >(
+    (prevState, action) => {
+      const newState = schema.parse(
+        action instanceof Function ? action(prevState) : action,
+      );
+      window.localStorage.setItem(itemKey, JSON.stringify(newState));
 
-    return newState;
-  }, schema.parse(null));
+      return newState as z.infer<Schema>;
+    },
+    schema.parse(null) as z.infer<Schema>,
+  );
 
   const handleStorage = useCallback(
     (e: StorageEvent) => {
@@ -70,10 +81,9 @@ export default function useLocalStorage<K extends keyof LocalStorageSchema>(
       }
 
       try {
-        setState(schema.parse(JSON.parse(e.newValue ?? "")));
+        setState(schema.parse(JSON.parse(e.newValue ?? "")) as z.infer<Schema>);
       } catch {
-        //@ts-expect-error weirdly specific type narrowing
-        setState(null);
+        setState(schema.parse(null) as z.infer<Schema>);
       }
     },
     [key, schema],
@@ -84,11 +94,12 @@ export default function useLocalStorage<K extends keyof LocalStorageSchema>(
 
     try {
       setState(
-        schema.parse(JSON.parse(window.localStorage.getItem(key) ?? "")),
+        schema.parse(
+          JSON.parse(window.localStorage.getItem(key) ?? ""),
+        ) as z.infer<Schema>,
       );
     } catch {
-      //@ts-expect-error weirdly specific type narrowing
-      setState(null);
+      setState(schema.parse(null) as z.infer<Schema>);
     }
 
     window.addEventListener("storage", handleStorage);

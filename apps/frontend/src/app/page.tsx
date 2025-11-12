@@ -3,7 +3,7 @@
 // Returning User: option(saved filter preferences, manual entry, saved plans)
 // New User: option(saved filter preferences, questionnaire page, saved plans)
 
-import { Navbar } from "@/components/Navbar";
+import { Navbar } from "~/components/Navbar";
 import Image from "next/image";
 import Link from "next/link";
 import devdogCobranded from "../../public/images/devdogCobranded.png";
@@ -29,16 +29,16 @@ export default function Home() {
               <div className="flex w-full items-center justify-center gap-8">
                 <div className="flex translate-x-5 flex-col items-start">
                   <div className="flex items-center">
-                    <div className="mr-4 h-20 border-l-4 border-bulldog-red"></div>
+                    <div className="border-bulldog-red mr-4 h-20 border-l-4"></div>
                     <div className="flex h-20 flex-col justify-center text-nowrap">
-                      <span className="text-nowrap text-left text-2xl font-bold leading-tight text-bulldog-red sm:text-3xl xl:text-4xl">
+                      <span className="text-bulldog-red text-nowrap text-left text-2xl font-bold leading-tight sm:text-3xl xl:text-4xl">
                         An Optimized
                         <br />
                         Schedule Builder
                       </span>
                     </div>
                   </div>
-                  <span className="mt-5 text-left font-medium text-bulldog-red sm:text-lg xl:text-2xl">
+                  <span className="text-bulldog-red mt-5 text-left font-medium sm:text-lg xl:text-2xl">
                     For Students, By Students
                   </span>
                 </div>
@@ -52,11 +52,11 @@ export default function Home() {
               </div>
               {/* Ready and Start Now Button */}
               <div className="flex w-full min-w-[350px] max-w-lg -translate-y-0 items-center justify-center text-xl font-bold md:-translate-y-5 xl:-translate-y-3 xl:text-2xl">
-                <p className="-mr-8 w-1/2 cursor-default rounded-l-full bg-[#F8E6EA] bg-dusty-pink px-6 py-4 text-left text-neutral-600/40 sm:py-5">
+                <p className="bg-dusty-pink -mr-8 w-1/2 cursor-default rounded-l-full bg-[#F8E6EA] px-6 py-4 text-left text-neutral-600/40 sm:py-5">
                   Ready?
                 </p>
                 <Link
-                  className="flex w-3/5 items-center text-nowrap rounded-full bg-bulldog-red px-6 py-4 pl-8 pr-1.5 text-white shadow-md sm:py-5"
+                  className="bg-bulldog-red flex w-3/5 items-center text-nowrap rounded-full px-6 py-4 pl-8 pr-1.5 text-white shadow-md sm:py-5"
                   href="/create"
                 >
                   Start Now!{" "}

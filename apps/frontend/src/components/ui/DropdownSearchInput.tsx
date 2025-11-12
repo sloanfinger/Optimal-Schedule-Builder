@@ -104,7 +104,7 @@ export const DropdownSearchInput = ({
           onChange={handleQuery}
           onClick={() => setIsOpen((prev) => !prev)}
           placeholder={placeholder}
-          className={`w-full rounded-md border-2 p-2 outline-none hover:border-pebble-gray ${className}`}
+          className={`hover:border-pebble-gray w-full rounded-md border-2 p-2 outline-none ${className}`}
           autoComplete="off"
           onKeyDown={handleKeyPress}
         />

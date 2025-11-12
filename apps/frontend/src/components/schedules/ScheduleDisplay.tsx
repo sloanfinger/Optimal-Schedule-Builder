@@ -1,7 +1,7 @@
 "use client";
 
-import WeekSchedule from "@/components/schedules/WeekSchedule";
-import useLocalStorage from "@/hooks/useLocalStorage";
+import WeekSchedule from "~/components/schedules/WeekSchedule";
+import useLocalStorage from "~/hooks/useLocalStorage";
 import Link from "next/link";
 import { useCallback, useMemo } from "react";
 import {
@@ -71,14 +71,14 @@ export default function ScheduleDisplay({ id }: Props) {
   return (
     <div className="mx-auto min-h-screen w-[100%]">
       {/* Container for schedule display, schedule cycling, and save/exit buttons */}
-      <div className="z-1 ml-auto mr-auto flex h-[85vh] w-[90vw] flex-col rounded-lg border-2 border-black bg-barely-pink pt-2">
+      <div className="z-1 bg-barely-pink ml-auto mr-auto flex h-[85vh] w-[90vw] flex-col rounded-lg border-2 border-black pt-2">
         {/* Properly positions the cycling bar and the save/exit buttons */}
         <div className="flex flex-row items-center justify-between px-12 py-2">
           <button type="button" className="cursor-default" onClick={pinPlan}>
             {pinned ? (
-              <PiHeartFill className="size-8 text-glory-glory-red transition" />
+              <PiHeartFill className="text-glory-glory-red size-8 transition" />
             ) : (
-              <PiHeartBold className="m-0.5 size-7 transition-[color,width,height,margin] hover:m-0 hover:size-8 hover:text-glory-glory-red" />
+              <PiHeartBold className="hover:text-glory-glory-red m-0.5 size-7 transition-[color,width,height,margin] hover:m-0 hover:size-8" />
             )}
           </button>
 
@@ -122,7 +122,7 @@ export default function ScheduleDisplay({ id }: Props) {
           {/* Save/exit buttons: exit returns to saved plan list */}
           <Link
             href="/plans"
-            className="transition-colors hover:text-bulldog-red"
+            className="hover:text-bulldog-red transition-colors"
           >
             <PiXBold className="size-7" />
           </Link>

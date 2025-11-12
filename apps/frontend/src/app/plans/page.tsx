@@ -1,8 +1,8 @@
 "use client";
-import { Navbar } from "@/components/Navbar";
-import SavedPlan from "@/components/saved-plans/SavedPlan";
-import DeletePlan from "@/components/ui/DeletePlan";
-import useLocalStorage from "@/hooks/useLocalStorage";
+import { Navbar } from "~/components/Navbar";
+import SavedPlan from "~/components/saved-plans/SavedPlan";
+import DeletePlan from "~/components/ui/DeletePlan";
+import useLocalStorage from "~/hooks/useLocalStorage";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useState } from "react";
@@ -46,13 +46,13 @@ export default function MyPlans() {
 
       {savedPlans.length === 0 && (
         // if savedPlans array is empty: direct user to the schedule builder
-        <div className="z-1 mb-10 ml-auto mr-auto mt-20 flex h-[85vh] w-4/5 flex-col flex-nowrap items-center overflow-y-auto rounded-xl border-2 border-black bg-barely-pink">
+        <div className="z-1 bg-barely-pink mb-10 ml-auto mr-auto mt-20 flex h-[85vh] w-4/5 flex-col flex-nowrap items-center overflow-y-auto rounded-xl border-2 border-black">
           <div className="m-auto flex flex-col items-center justify-center">
             <h1 className="text-3xl font-bold">
               You don&apos;t have any saved plans yet.{" "}
             </h1>
             <Link href="/create">
-              <button className="mt-5 rounded-lg bg-bulldog-red px-8 py-4 text-xl font-bold text-white hover:bg-black">
+              <button className="bg-bulldog-red mt-5 rounded-lg px-8 py-4 text-xl font-bold text-white hover:bg-black">
                 Create
               </button>
             </Link>
@@ -60,7 +60,7 @@ export default function MyPlans() {
         </div>
       )}
 
-      <div className="z-1 mb-10 ml-auto mr-auto mt-20 flex h-[85vh] w-4/5 flex-col flex-nowrap items-center gap-6 overflow-y-auto rounded-xl border-2 border-black bg-barely-pink py-10">
+      <div className="z-1 bg-barely-pink mb-10 ml-auto mr-auto mt-20 flex h-[85vh] w-4/5 flex-col flex-nowrap items-center gap-6 overflow-y-auto rounded-xl border-2 border-black py-10">
         {savedPlans
           .toSorted((a, b) => (a.pinned !== b.pinned ? (a.pinned ? -1 : 1) : 0))
           .map((plan) => (

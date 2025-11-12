@@ -2,7 +2,8 @@
 
 import * as Popover from "@radix-ui/react-popover";
 import { matchSorter } from "match-sorter";
-import {
+import React, {
+  ReactNode,
   useCallback,
   useEffect,
   useId,
@@ -13,23 +14,34 @@ import {
 } from "react";
 import { PiCaretUpDown, PiCheckBold, PiMagnifyingGlass } from "react-icons/pi";
 
-interface Option {
-  /**
-   * A unique identifier for this option.
-   */
-  value: string;
-  /**
-   * The text content displayed for this option. This text is used to
-   * filter the visible options when the user types in the combobox.
-   */
-  content: string;
+function getTextContent(node: ReactNode): string {
+  if (!node) {
+    return "";
+  }
+
+  if (typeof node !== "object") {
+    return node.toString();
+  }
+
+  if (Symbol.iterator in node) {
+    return Array.from(node)
+      .map((child) => getTextContent(child))
+      .join("");
+  }
+
+  if (
+    "props" in node &&
+    typeof node.props === "object" &&
+    node.props &&
+    "children" in node.props
+  ) {
+    return getTextContent(node.props.children as ReactNode);
+  }
+
+  return "";
 }
 
-interface Props {
-  /**
-   * The value for the initially selected option.
-   */
-  defaultValue?: string;
+type Props = {
   /**
    * Prevents user input if `true`. The Combobox will display as
    * translucent and use the `not-allowed` cursor when hovered.
@@ -38,16 +50,11 @@ interface Props {
   /**
    * An array of items to render as options.
    */
-  options?: Option[];
+  options?: Record<string, ReactNode>;
   /**
    * The name passed to the underlying `<select />` element.
    */
   name?: string;
-  /**
-   * An event handler which fires when a new item is selected.
-   * @param value The `value` of the selected item. This may be `undefined` if the form is reset.
-   */
-  onChange?: (value: string | undefined) => void;
   /**
    * Indicates whether the current
    */
@@ -57,15 +64,50 @@ interface Props {
    */
   preserveOrdering?: boolean;
   /**
-   * The placeholder text displayed when no item is selected.
-   */
-  selectPlaceholder?: string;
-  /**
    * The placeholder text displayed in the search input when the
    * popover is open.
    */
   searchPlaceholder?: string;
-}
+} & (
+  | {
+      /**
+       * The value for the initially selected option.
+       */
+      defaultValue?: string;
+      /**
+       * Calculate the text to display based on the curretly selected item
+       */
+      displayText: (selection?: string) => ReactNode;
+      /**
+       * Allow selection of multiple items
+       */
+      multiple?: false;
+      /**
+       * An event handler which fires when a new item is selected.
+       * @param value The `value` of the selected item(s). This may be `undefined` if the form is reset.
+       */
+      onChange?: (value: string | undefined) => void;
+    }
+  | {
+      /**
+       * The value for the initially selected option.
+       */
+      defaultValue?: string[];
+      /**
+       * Calculate the text to display based on the curretly selected items
+       */
+      displayText: (selection: string[]) => ReactNode;
+      /**
+       * Allow selection of multiple items
+       */
+      multiple: true;
+      /**
+       * An event handler which fires when a new item is selected.
+       * @param value The `value` of the selected item(s). This may be `undefined` if the form is reset.
+       */
+      onChange?: (value: string[]) => void;
+    }
+);
 
 /**
  * A wrapper for `<select />` which displays a popover
@@ -79,44 +121,44 @@ interface Props {
  */
 export default function Combobox({
   defaultValue,
+  displayText,
   disabled,
+  multiple,
   name,
   onChange,
-  options,
+  options = {},
   preserveOrdering,
   required,
   searchPlaceholder,
-  selectPlaceholder,
 }: Props) {
   const id = useId();
-  const fieldset = useRef<HTMLFieldSetElement>(null);
-  const select = useRef<HTMLSelectElement>(null);
+  const fieldsetRef = useRef<HTMLFieldSetElement>(null);
+  const selectRef = useRef<HTMLSelectElement>(null);
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState("");
 
-  const [selected, setSelectedId] = useReducer(
-    /**
-     * Finds the option in `options` associated with the provided
-     * `value`. This will be `undefined` if the value cannot be
-     * found.
-     * @param _prevState This parameter is ignored.
-     * @param action The `value` to search for in `options`.
-     * @return The associated `Option`.
-     */
-    (_prevState: Option | undefined, action: string | undefined) => {
-      return options?.find((item) => item.value === action);
-    },
-    undefined,
+  const [selection, setSelection] = useState<string[]>(
+    defaultValue
+      ? defaultValue instanceof Array
+        ? defaultValue
+        : [defaultValue]
+      : [],
   );
 
-  const [highlighted, setHighlighted] = useState(
-    (selected ?? options?.[0])?.value,
+  const matchableOptions = useMemo(
+    () =>
+      Object.entries(options).map(([value, content]) => ({
+        value,
+        content,
+        textContent: getTextContent(content),
+      })),
+    [options],
   );
 
   const filteredOptions = useMemo(
     () =>
       options
-        ? matchSorter(options, filter, {
+        ? matchSorter(matchableOptions, filter, {
             ...(preserveOrdering
               ? { baseSort: (a, b) => (a.index < b.index ? -1 : 1) }
               : {}),
@@ -126,8 +168,39 @@ export default function Combobox({
     [options, filter, preserveOrdering],
   );
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilter(e.target.value);
+  const [highlighted, setHighlighted] = useState(selection[0]);
+
+  const select = useCallback(
+    (target: string | undefined) => {
+      if (!target) {
+        return;
+      }
+
+      setSelection((selection) => {
+        if (selection.includes(target)) {
+          return selection.filter((value) => value !== target);
+        }
+
+        if (multiple) {
+          return [...selection, target];
+        }
+
+        return [target];
+      });
+    },
+    [multiple],
+  );
+
+  const handleFilterChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFilter(e.currentTarget.value);
+    },
+    [],
+  );
+
+  const handleOptionChange = useCallback((value: string) => {
+    setHighlighted(value);
+    select(value);
   }, []);
 
   /**
@@ -138,9 +211,7 @@ export default function Combobox({
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Enter") {
         e.preventDefault();
-        onChange?.(highlighted);
-        setSelectedId(highlighted);
-        setOpen(false);
+        select(highlighted);
         return;
       }
 
@@ -171,30 +242,24 @@ export default function Combobox({
         );
         return;
       }
-
-      setHighlighted(filteredOptions[0]?.value);
     },
-    [highlighted, filteredOptions, onChange],
+    [highlighted],
   );
 
   /**
    * Resets the Combobox to the initial state.
    */
   const handleReset = useCallback(() => {
-    setOpen(false);
     setFilter("");
-    setHighlighted(options?.[0]?.value);
-    setSelectedId(undefined);
-    onChange?.(undefined);
-  }, [options, onChange]);
-
-  /**
-   * Update the selected option when the default value
-   * changes.
-   */
-  useEffect(() => {
-    setSelectedId(defaultValue);
-  }, [defaultValue]);
+    setHighlighted(undefined);
+    setSelection(
+      defaultValue
+        ? defaultValue instanceof Array
+          ? defaultValue
+          : [defaultValue]
+        : [],
+    );
+  }, [options]);
 
   /**
    * Reset the option filter when the popover is closed.
@@ -202,10 +267,10 @@ export default function Combobox({
   useEffect(() => {
     if (!open) {
       setFilter("");
-      setHighlighted(selected?.value);
+      setHighlighted(selection[0]);
       setOpen(false);
     }
-  }, [open, selected]);
+  }, [open, selection]);
 
   /**
    * When `highlighted` changes, we make sure that the popover
@@ -219,16 +284,16 @@ export default function Combobox({
 
     requestAnimationFrame(() => {
       const item: HTMLElement | undefined | null =
-        fieldset.current?.querySelector(
+        fieldsetRef.current?.querySelector(
           `label:has([name="${name ?? id}"][value="${highlighted}"])`,
         );
 
-      if (!fieldset.current || !item) {
+      if (!fieldsetRef.current || !item) {
         return;
       }
 
-      const fieldsetTop = fieldset.current.scrollTop;
-      const fieldsetBottom = fieldsetTop + fieldset.current.clientHeight;
+      const fieldsetTop = fieldsetRef.current.scrollTop;
+      const fieldsetBottom = fieldsetTop + fieldsetRef.current.clientHeight;
       const itemTop = item.offsetTop;
       const itemBottom = itemTop + item.clientHeight;
 
@@ -246,52 +311,72 @@ export default function Combobox({
    * Trigger `handleReset(...)` when the parent form is reset.
    */
   useEffect(() => {
-    if (!select.current?.form) {
+    if (!selectRef.current?.form) {
       return;
     }
 
     const controller = new AbortController();
-    select.current.form.addEventListener("reset", handleReset, controller);
+    selectRef.current.form.addEventListener("reset", handleReset, controller);
     return () => controller.abort();
   }, [handleReset]);
 
+  useEffect(() => {
+    if (multiple) {
+      onChange?.(selection);
+    } else {
+      onChange?.(selection[0]);
+      setOpen(false);
+    }
+  }, [selection]);
+
+  useEffect(() => {
+    setHighlighted(filteredOptions[0]?.value);
+  }, [filteredOptions]);
+
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
+      <select
+        className="hidden"
+        onChange={() => {}}
+        name={name}
+        ref={selectRef}
+        required={required}
+        multiple={multiple || undefined}
+        tabIndex={-1}
+        value={multiple ? selection : selection[0]}
+      >
+        {selection.map((value) => (
+          <option key={value} value={value} />
+        ))}
+      </select>
+
       <Popover.Trigger
         disabled={disabled === true || options === undefined}
         data-loading={disabled !== true && options === undefined}
         asChild
       >
-        <button className="flex w-full cursor-default items-center gap-6 rounded-md border-2 border-limestone bg-white px-3 py-1.5 transition-[box-shadow,border-color] disabled:cursor-not-allowed disabled:opacity-60 data-[state=open]:pointer-events-none data-[loading=true]:cursor-wait [&:not(:disabled):hover]:border-pebble-gray [&:not(:disabled):hover]:shadow-sm">
-          <select
-            className="peer pointer-events-none hidden flex-1 appearance-none bg-transparent has-[option:checked]:block"
-            tabIndex={-1}
-            name={name}
-            onChange={(e) => setSelectedId(e.target.value)}
-            ref={select}
-            required={required}
-            value={selected?.value}
-          >
-            {selected && (
-              <option value={selected.value}>{selected.content}</option>
-            )}
-          </select>
+        <button
+          className="border-limestone [&:not(:disabled):hover]:border-pebble-gray flex w-full cursor-default items-center gap-6 rounded-md border-2 bg-white px-3 py-1.5 transition-[box-shadow,border-color] disabled:cursor-not-allowed disabled:opacity-60 data-[state=open]:pointer-events-none data-[loading=true]:cursor-wait [&:not(:disabled):hover]:shadow-sm"
+          suppressHydrationWarning
+        >
           <span className="flex-1 text-left text-neutral-600 peer-has-[option:checked]:hidden">
-            {disabled !== true && options === undefined
+            {!disabled && options === undefined
               ? "Loading..."
-              : (defaultValue ?? selectPlaceholder ?? "Select one")}
+              : multiple
+                ? displayText(selection)
+                : displayText(selection[0])}
           </span>
           <PiCaretUpDown />
         </button>
       </Popover.Trigger>
 
       <Popover.Portal>
-        <Popover.Content className="-mt-[var(--radix-popover-trigger-height)] flex max-h-56 w-[var(--radix-popover-trigger-width)] max-w-[calc(100dvw-1rem)] flex-col gap-1 rounded-md border-2 border-pebble-gray bg-white px-1 py-1 shadow-lg">
+        <Popover.Content className="border-pebble-gray -mt-(--radix-popover-trigger-height) w-(--radix-popover-trigger-width) flex max-h-56 max-w-[calc(100dvw-1rem)] flex-col gap-1 rounded-md border-2 bg-white px-1 py-1 shadow-lg">
           <label className="peer flex w-full items-center gap-2 rounded-sm bg-neutral-100 px-2 py-1">
             <PiMagnifyingGlass className="text-neutral-700" />
             <input
               className="flex-1 bg-transparent placeholder:text-neutral-700 focus:outline-none"
-              onChange={handleChange}
+              onChange={handleFilterChange}
               onKeyDown={handleKeydown}
               placeholder={searchPlaceholder ?? "Search items..."}
               value={filter}
@@ -300,38 +385,35 @@ export default function Combobox({
 
           <fieldset
             className="relative flex max-h-[140px] snap-y snap-mandatory flex-col gap-1 overflow-y-auto"
-            ref={fieldset}
+            ref={fieldsetRef}
           >
-            {filteredOptions.map(({ value, content }) => (
-              <label
-                className="flex snap-start items-center gap-2 rounded-sm py-1 pr-2 has-[:checked]:font-medium data-[active=true]:bg-limestone"
-                data-active={highlighted === value}
-                key={value}
-                onMouseEnter={() => setHighlighted(value)}
-              >
-                <input
-                  className="peer appearance-none"
-                  name={name ?? id}
-                  checked={selected?.value === value}
-                  onChange={() => {
-                    onChange?.(value);
-                    setHighlighted(value);
-                    setOpen(false);
-                    setSelectedId(value);
-                  }}
-                  value={value}
-                  type="radio"
-                />
-                <PiCheckBold className="text-midnight-blue opacity-0 peer-checked:opacity-100" />
-                {content}
-              </label>
-            ))}
+            <div className="peer contents">
+              {filteredOptions.map(({ value, content }) => (
+                <label
+                  className="data-highlighted:bg-limestone has-checked:font-medium flex snap-start items-center gap-2 rounded-sm py-1 pr-2"
+                  data-highlighted={highlighted === value || undefined}
+                  key={value}
+                  onMouseEnter={() => setHighlighted(value)}
+                >
+                  <input
+                    className="peer appearance-none"
+                    name={name ?? id}
+                    checked={selection.includes(value)}
+                    onChange={() => {
+                      handleOptionChange(value);
+                    }}
+                    value={value}
+                    type={multiple ? "checkbox" : "radio"}
+                  />
+                  <PiCheckBold className="text-midnight-blue opacity-0 peer-checked:opacity-100" />
+                  {content}
+                </label>
+              ))}
+            </div>
 
-            {filteredOptions.length === 0 && (
-              <p className="px-2 py-1 text-sm italic text-neutral-700">
-                No results.
-              </p>
-            )}
+            <p className="hidden px-2 py-1 text-sm italic text-neutral-700 peer-empty:block">
+              No results.
+            </p>
           </fieldset>
         </Popover.Content>
       </Popover.Portal>

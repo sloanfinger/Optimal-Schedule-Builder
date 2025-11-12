@@ -1,17 +1,15 @@
-"use client";
-
 import { Suspense } from "react";
-import ScheduleDisplay from "@/components/schedules/ScheduleDisplay";
+import ScheduleDisplay from "~/components/schedules/ScheduleDisplay";
 import background from "../../../../public/images/background.png";
 
 interface Props {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 // Page for viewing a generated schedule / saved plan
-export default function SchedulePage({ params }: Props) {
+export default async function SchedulePage({ params }: Props) {
   // Render the schedule
   return (
     <div
@@ -23,7 +21,7 @@ export default function SchedulePage({ params }: Props) {
       {/* Schedule display container */}
       <div className="flex flex-grow flex-row overflow-y-auto pt-32">
         <Suspense fallback={<div>Loading...</div>}>
-          <ScheduleDisplay id={params.id} />
+          <ScheduleDisplay id={(await params).id} />
         </Suspense>
       </div>
     </div>

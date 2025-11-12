@@ -1,10 +1,13 @@
-import { Error } from "@/components/Toasts";
-import Combobox from "@/components/ui/Combobox";
-import useQuery from "@/hooks/useQuery";
-import useToast from "@/hooks/useToast";
-import type { Course } from "@/schemas/serverQueries";
+import { Error } from "~/components/Toasts";
+import Combobox from "~/components/ui/Combobox";
+import useToast from "~/hooks/useToast";
+import type { Course } from "@repo/backend/course-information/models";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PiNetworkSlashDuotone } from "react-icons/pi";
+import {
+  useGetAllInstructors,
+  useGetCourseByProfessor,
+} from "@repo/backend/course-information";
 
 type InputState =
   | Record<string, never>
@@ -47,33 +50,23 @@ export default function SearchByInstructor({
   const [instructor, setInstructor] = useState(defaultValue?.instructor);
   const dispatchError = useToast(Error);
 
-  const instructorsQuery = useQuery(
-    "getAllInstructors",
-    {},
-    {
-      initialData: [],
-    },
-  );
-
-  const coursesQuery = useQuery(
-    "getCoursesByProfessor",
+  const instructorsQuery = useGetAllInstructors();
+  const coursesQuery = useGetCourseByProfessor(
     { professor: instructor ?? "" },
-    {
-      enabled: instructor !== undefined,
-      initialData: [],
-    },
+    { swr: { enabled: instructor !== undefined } },
   );
 
   const instructors = useMemo(
-    () => instructorsQuery.data?.map((value) => ({ value, content: value })),
+    () =>
+      instructorsQuery.data?.data.map((value) => ({ value, content: value })),
     [instructorsQuery.data],
   );
 
   const courses = useMemo(
     () =>
-      coursesQuery.data?.map((course) => ({
-        value: course.courseId.toString(),
-        content: `(${course.courseNumber}) ${course.athenaTitle}`,
+      coursesQuery.data?.data.map(({ course }) => ({
+        value: String(course?.courseId),
+        content: `(${course?.courseNumber}) ${course?.athenaTitle}`,
       })),
     [coursesQuery.data],
   );
@@ -93,17 +86,17 @@ export default function SearchByInstructor({
       }
 
       const id = Number(courseId);
-      const course = coursesQuery.data?.find(
-        (course) => course.courseId === id,
+      const section = coursesQuery.data?.data.find(
+        (section) => section.course?.courseId === id,
       );
 
-      if (course === undefined) {
+      if (section?.course === undefined) {
         onChange?.(null);
         return;
       }
 
       onInput?.({ instructor, course: courseId });
-      onChange?.(course);
+      onChange?.(section.course);
     },
     [onChange, coursesQuery.data, instructor, onInput],
   );
@@ -119,7 +112,7 @@ export default function SearchByInstructor({
       return;
     }
 
-    if (!instructorsQuery.data.includes(defaultValue.instructor)) {
+    if (!instructorsQuery.data?.data.includes(defaultValue.instructor)) {
       onInput?.({});
       onChange?.(null);
       return;
@@ -129,12 +122,12 @@ export default function SearchByInstructor({
       return;
     }
 
-    const course = coursesQuery.data.find(
-      (c) => c.courseId === Number(defaultValue.course),
+    const section = coursesQuery.data.data.find(
+      (section) => section.course?.courseId === Number(defaultValue.course),
     );
 
-    if (course !== undefined) {
-      onChange?.(course);
+    if (section?.course !== undefined) {
+      onChange?.(section.course);
       return;
     }
 
@@ -149,22 +142,22 @@ export default function SearchByInstructor({
   ]);
 
   useEffect(() => {
-    if (instructorsQuery.isError) {
+    if (instructorsQuery.error) {
       dispatchError({
         icon: PiNetworkSlashDuotone,
         message: "Could not connect to course information service.",
       });
     }
-  }, [instructorsQuery.isError, dispatchError]);
+  }, [instructorsQuery.error, dispatchError]);
 
   useEffect(() => {
-    if (coursesQuery.isError) {
+    if (coursesQuery.error) {
       dispatchError({
         icon: PiNetworkSlashDuotone,
         message: "Could not connect to course information service.",
       });
     }
-  }, [coursesQuery.isError, dispatchError]);
+  }, [coursesQuery.error, dispatchError]);
 
   return (
     <fieldset className="grid w-full max-w-96 grid-cols-[max-content_1fr] grid-rows-2 items-center gap-x-3 gap-y-6">

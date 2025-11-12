@@ -15,7 +15,7 @@ export default function DeletePlan({
 }: DeletePlanProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="rounded-lg border-2 border-black bg-barely-pink p-5">
+      <div className="bg-barely-pink rounded-lg border-2 border-black p-5">
         <div className="flex flex-col items-center">
           <h2 className="mb-4 text-xl text-black">
             Are you sure you want to delete the plan {planTitle}?

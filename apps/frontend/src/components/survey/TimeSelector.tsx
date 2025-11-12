@@ -71,7 +71,7 @@ const Timeselector = ({
         onChange={handleChange}
         onKeyDown={handleKeyPress}
         maxLength={5}
-        className={`w-full rounded-md border-2 px-12 py-2 outline-0 hover:border-pebble-gray ${className}`}
+        className={`hover:border-pebble-gray w-full rounded-md border-2 px-12 py-2 outline-0 ${className}`}
       />
       {/* READONLY INPUT TO CAPTURE CURRENT FORMATTED VALUE W/MERIDIAN TO SEND TO FORMDATA  */}
       <input

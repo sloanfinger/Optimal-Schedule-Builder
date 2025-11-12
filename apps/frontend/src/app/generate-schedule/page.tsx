@@ -1,4 +1,4 @@
-import { Navbar } from "@/components/Navbar";
+import { Navbar } from "~/components/Navbar";
 import Link from "next/link";
 
 export default function GenerateSchedules() {
@@ -12,12 +12,12 @@ export default function GenerateSchedules() {
           </h1>
           <div>
             <div>
-              <button className="rounded-lg bg-bulldog-red px-4 py-2 font-semibold text-white">
+              <button className="bg-bulldog-red rounded-lg px-4 py-2 font-semibold text-white">
                 <Link href={"/schedules"}>Schedules</Link>
               </button>
             </div>
             <div>
-              <button className="rounded-lg bg-bulldog-red px-4 py-2 font-semibold text-white">
+              <button className="bg-bulldog-red rounded-lg px-4 py-2 font-semibold text-white">
                 <Link href={"/plans"}>My Plans</Link>
               </button>
             </div>

@@ -1,10 +1,13 @@
-import { Error } from "@/components/Toasts";
-import Combobox from "@/components/ui/Combobox";
-import useQuery from "@/hooks/useQuery";
-import useToast from "@/hooks/useToast";
-import type { Course } from "@/schemas/serverQueries";
+import { Error } from "~/components/Toasts";
+import Combobox from "~/components/ui/Combobox";
+import useToast from "~/hooks/useToast";
+import type { Course } from "@repo/backend/course-information/models";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PiNetworkSlashDuotone } from "react-icons/pi";
+import {
+  useGetAllSubjects,
+  useGetCoursesByMajor,
+} from "@repo/backend/course-information";
 
 type InputState =
   | Record<string, never>
@@ -46,34 +49,33 @@ export default function SearchBySubject({
   const [subject, setSubject] = useState(defaultValue?.subject);
   const dispatchError = useToast(Error);
 
-  const subjectsQuery = useQuery(
-    "getAllSubjects",
-    {},
-    {
-      initialData: [],
-    },
-  );
+  const subjectsQuery = useGetAllSubjects();
 
-  const coursesQuery = useQuery(
-    "getCoursesByMajor",
+  const coursesQuery = useGetCoursesByMajor(
     { major: subject ?? "" },
-    {
-      enabled: subject !== undefined,
-      initialData: [],
-    },
+    { swr: { enabled: subject !== undefined } },
   );
 
   const subjects = useMemo(
-    () => subjectsQuery.data?.map((value) => ({ value, content: value })),
+    () =>
+      subjectsQuery.data &&
+      Object.fromEntries(
+        subjectsQuery.data.data.map((value) => [value, value]),
+      ),
     [subjectsQuery.data],
   );
 
+  console.log(coursesQuery.data?.data);
+
   const courses = useMemo(
     () =>
-      coursesQuery.data?.map((course) => ({
-        value: course.courseId.toString(),
-        content: `(${course.courseNumber}) ${course.athenaTitle}`,
-      })),
+      coursesQuery.data &&
+      Object.fromEntries(
+        coursesQuery.data.data.map((course) => [
+          String(course.courseId),
+          `(${course.courseNumber}) ${course.title}`,
+        ]),
+      ),
     [coursesQuery.data],
   );
 
@@ -92,7 +94,7 @@ export default function SearchBySubject({
       }
 
       const id = Number(courseId);
-      const course = coursesQuery.data?.find(
+      const course = coursesQuery.data?.data.find(
         (course) => course.courseId === id,
       );
 
@@ -116,7 +118,7 @@ export default function SearchBySubject({
       return;
     }
 
-    if (!subjectsQuery.data.includes(defaultValue.subject)) {
+    if (!subjectsQuery.data.data.includes(defaultValue.subject)) {
       onInput?.({});
       onChange?.(null);
       return;
@@ -126,7 +128,7 @@ export default function SearchBySubject({
       return;
     }
 
-    const course = coursesQuery.data.find(
+    const course = coursesQuery.data.data.find(
       (c) => c.courseId === Number(defaultValue.course),
     );
 
@@ -140,22 +142,22 @@ export default function SearchBySubject({
   }, [defaultValue, subjectsQuery.data, coursesQuery.data, onChange, onInput]);
 
   useEffect(() => {
-    if (subjectsQuery.isError) {
+    if (subjectsQuery.error) {
       dispatchError({
         icon: PiNetworkSlashDuotone,
         message: "Could not connect to course information service.",
       });
     }
-  }, [subjectsQuery.isError, dispatchError]);
+  }, [subjectsQuery.error, dispatchError]);
 
   useEffect(() => {
-    if (coursesQuery.isError) {
+    if (coursesQuery.error) {
       dispatchError({
         icon: PiNetworkSlashDuotone,
         message: "Could not connect to course information service.",
       });
     }
-  }, [coursesQuery.isError, dispatchError]);
+  }, [coursesQuery.error, dispatchError]);
 
   return (
     <fieldset className="grid w-full max-w-96 grid-cols-[max-content_1fr] grid-rows-2 items-center gap-x-3 gap-y-8">
@@ -187,6 +189,7 @@ export default function SearchBySubject({
               ? `Select a ${subject} Course`
               : "Awaiting Subject Selection..."
           }
+          multiple
         />
       </label>
     </fieldset>

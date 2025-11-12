@@ -1,6 +1,6 @@
 "use client";
 
-import { type SavedPlan } from "@/schemas/localStorage";
+import { type SavedPlan } from "~/schemas/localStorage";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
@@ -58,18 +58,18 @@ export default function SavedPlan({ plan, onPin, onDelete }: PlanDisplayProps) {
       {/* Pin button (gives a saved plan priority over others*/}
       <button type="button" className="cursor-default" onClick={handlePin}>
         {plan.pinned ? (
-          <PiHeartFill className="size-8 text-glory-glory-red transition" />
+          <PiHeartFill className="text-glory-glory-red size-8 transition" />
         ) : (
-          <PiHeartBold className="m-0.5 size-7 transition-[color,width,height,margin] hover:m-0 hover:size-8 hover:text-glory-glory-red" />
+          <PiHeartBold className="hover:text-glory-glory-red m-0.5 size-7 transition-[color,width,height,margin] hover:m-0 hover:size-8" />
         )}
       </button>
 
       <button
         type="button"
-        className="cursor-default rounded-md p-0.5 transition-colors hover:bg-glory-glory-red/15"
+        className="hover:bg-glory-glory-red/15 cursor-default rounded-md p-0.5 transition-colors"
       >
         <PiTrashBold
-          className="size-7 text-glory-glory-red"
+          className="text-glory-glory-red size-7"
           onClick={handleDelete}
         />
       </button>

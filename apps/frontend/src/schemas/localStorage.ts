@@ -1,4 +1,4 @@
-import { dummyData1, dummyData2 } from "@/components/schedules/dummySchedules";
+import { dummyData1, dummyData2 } from "~/components/schedules/dummySchedules";
 import * as z from "zod";
 
 /**
@@ -75,6 +75,13 @@ const localStorage = {
         pinned: false,
       },
     ]),
+  coursesBySubject: z
+    .object({
+      subject: z.string().optional(),
+      courseId: z.string().optional(),
+      crns: z.string().array().optional(),
+    })
+    .catch({}),
 };
 
 export type SavedPlan = z.infer<(typeof localStorage)["schedules"]>[number];

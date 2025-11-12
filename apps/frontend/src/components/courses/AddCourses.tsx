@@ -1,14 +1,14 @@
 "use client";
 
-import type { Course } from "@/schemas/serverQueries";
+import { Course } from "@repo/backend/course-information/models";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { ReadonlyURLSearchParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PiPlusBold } from "react-icons/pi";
 import * as z from "zod";
+import SearchByCRN from "./search/SearchByCRN";
 import SearchByInstructor from "./search/SearchByInstructor";
 import SearchBySubject from "./search/SearchBySubject";
-import SearchByCRN from "./search/SearchByCRN";
 
 const searchParamsState = z
   .union([
@@ -87,7 +87,7 @@ interface Props {
   /**
    * The current URL search params.
    */
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: ReadonlyURLSearchParams;
   /**
    * Fires the provided event handler when a course is selected and the "Add Course" button is clicked.
    * @param course The selected course.
@@ -130,34 +130,36 @@ export function AddCourses({ onAddCourse, searchParams }: Props) {
     [onAddCourse, course],
   );
 
+  console.log(course);
+
   return (
     <div className="h-full min-w-full">
       <nav className="flex gap-2">
         <Link
           href={subjectView.href}
           data-active={state.view === "subject"}
-          className="w-1/3 rounded-bl-none rounded-br-none rounded-tl-lg rounded-tr-lg bg-dusty-pink px-4 py-2 text-left font-bold capitalize text-[#CFBEBE] duration-150 data-[active=true]:bg-bulldog-red data-[active=true]:text-white"
+          className="bg-dusty-pink data-[active=true]:bg-bulldog-red w-1/3 rounded-bl-none rounded-br-none rounded-tl-lg rounded-tr-lg px-4 py-2 text-left font-bold capitalize text-[#CFBEBE] duration-150 data-[active=true]:text-white"
         >
           By Subject
         </Link>
         <Link
           href={instructorView.href}
           data-active={state.view === "instructor"}
-          className="w-1/3 rounded-bl-none rounded-br-none rounded-tl-lg rounded-tr-lg bg-dusty-pink px-4 py-2 text-left font-bold capitalize text-[#CFBEBE] duration-150 data-[active=true]:bg-bulldog-red data-[active=true]:text-white"
+          className="bg-dusty-pink data-[active=true]:bg-bulldog-red w-1/3 rounded-bl-none rounded-br-none rounded-tl-lg rounded-tr-lg px-4 py-2 text-left font-bold capitalize text-[#CFBEBE] duration-150 data-[active=true]:text-white"
         >
           By Instructor
         </Link>
         <Link
           href={crnView.href}
           data-active={state.view === "crn"}
-          className="w-1/3 rounded-bl-none rounded-br-none rounded-tl-lg rounded-tr-lg bg-dusty-pink px-4 py-2 text-left font-bold capitalize text-[#CFBEBE] duration-150 data-[active=true]:bg-bulldog-red data-[active=true]:text-white"
+          className="bg-dusty-pink data-[active=true]:bg-bulldog-red w-1/3 rounded-bl-none rounded-br-none rounded-tl-lg rounded-tr-lg px-4 py-2 text-left font-bold capitalize text-[#CFBEBE] duration-150 data-[active=true]:text-white"
         >
           By CRN
         </Link>
       </nav>
 
       <form
-        className="flex flex-col gap-16 border-4 border-dusty-pink bg-barely-pink px-8 py-10"
+        className="border-dusty-pink bg-barely-pink flex flex-col gap-16 border-4 px-8 py-10"
         onSubmit={handleSubmit}
       >
         {state.view === "subject" && <SearchBySubject {...subjectView} />}
@@ -167,7 +169,7 @@ export function AddCourses({ onAddCourse, searchParams }: Props) {
         {state.view === "crn" && <SearchByCRN {...crnView} />}
 
         <button
-          className="flex items-center gap-2 self-end rounded-md border-2 border-red-800 bg-bulldog-red px-6 py-2 font-medium text-white transition-[background-color,border-color,box-shadow] disabled:cursor-not-allowed disabled:opacity-60 [&:not(:disabled)]:hover:border-red-950 [&:not(:disabled)]:hover:bg-red-800 [&:not(:disabled)]:hover:shadow-md"
+          className="bg-bulldog-red flex items-center gap-2 self-end rounded-md border-2 border-red-800 px-6 py-2 font-medium text-white transition-[background-color,border-color,box-shadow] disabled:cursor-not-allowed disabled:opacity-60 [&:not(:disabled)]:hover:border-red-950 [&:not(:disabled)]:hover:bg-red-800 [&:not(:disabled)]:hover:shadow-md"
           disabled={course === null}
           type="submit"
         >

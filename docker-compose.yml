@@ -1,25 +1,121 @@
-# Created by JP Park
-# Last maintained by JP Park
-
-version: "1.0"
-
 services:
-  config-server:
-    image: # TODO
-    container_name: # TODO
-    ports:
-      -  # TODO
+  mysql:
+    image: mysql:8.0
     environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-devdogs}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: on-failure:3
 
-  eureka-server:
-    image: # TODO
-    container_name: # TODO
-    ports:
-      -  # TODO
-    environment:
+  selenium:
+    image: selenium/standalone-chrome:latest
+    restart: on-failure:3
+    healthcheck:
+      test: ["CMD", "curl", "-f", "localhost:4444"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
-  api-gateway:
-    image: # TODO
-    container_name: # TODO
+  nginx:
+    image: nginx:latest
     ports:
-      -  # TODO
+      - "${API_PORT:-8080}:80"
+    volumes:
+      - type: bind
+        source: ./nginx
+        target: /etc/nginx/conf.d
+        read_only: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "localhost/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: on-failure:3
+  
+  bulletin:
+    image: gradle:latest
+    volumes:
+      - type: bind
+        source: ./services/bulletin/dist
+        target: /app/dist
+      - type: bind
+        source: ./services/bulletin/src
+        target: /app/src
+        read_only: true
+      - type: bind
+        source: ./services/bulletin/build.gradle
+        target: /app/build.gradle
+        read_only: true
+      - type: bind
+        source: ./services/bulletin/settings.gradle
+        target: /app/settings.gradle
+        read_only: true
+    working_dir: /app
+    command: gradle clean bootRun
+    depends_on:
+      mysql:
+        condition: service_healthy
+      selenium:
+        condition: service_healthy
+      nginx:
+        condition: service_healthy
+  
+  course-information:
+    image: gradle:latest
+    volumes:
+      - type: bind
+        source: ./services/course-information/dist
+        target: /app/dist
+      - type: bind
+        source: ./services/course-information/src
+        target: /app/src
+        read_only: true
+      - type: bind
+        source: ./services/course-information/build.gradle
+        target: /app/build.gradle
+        read_only: true
+      - type: bind
+        source: ./services/course-information/settings.gradle
+        target: /app/settings.gradle
+        read_only: true
+    working_dir: /app
+    command: gradle clean bootRun
+    depends_on:
+      mysql:
+        condition: service_healthy
+      selenium:
+        condition: service_healthy
+      nginx:
+        condition: service_healthy
+  
+  professor-rating:
+    image: gradle:latest
+    volumes:
+      - type: bind
+        source: ./services/professor-rating/dist
+        target: /app/dist
+      - type: bind
+        source: ./services/professor-rating/src
+        target: /app/src
+        read_only: true
+      - type: bind
+        source: ./services/professor-rating/build.gradle
+        target: /app/build.gradle
+        read_only: true
+      - type: bind
+        source: ./services/professor-rating/settings.gradle
+        target: /app/setting.gradle
+        read_only: true
+    working_dir: /app
+    command: gradle clean bootRun
+    depends_on:
+      mysql:
+        condition: service_healthy
+      selenium:
+        condition: service_healthy
+      nginx:
+        condition: service_healthy

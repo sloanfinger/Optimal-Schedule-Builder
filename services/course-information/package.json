@@ -1,0 +1,14 @@
+{
+  "name": "@repo/course-information",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": "./dist/openapi.json"
+  },
+  "scripts": {
+    "generateOpenApiDocs": "docker compose run --rm course-information gradle generateOpenApiDocs",
+    "dev": "turbo watch dev:bootRun dev:generateOpenApiDocs",
+    "dev:bootRun": "docker compose up course-information --build",
+    "dev:generateOpenApiDocs": "docker compose exec course-information gradle generateOpenApiDocs"
+  }
+}

@@ -1,8 +1,11 @@
 "use client";
-import { type ClassData } from "@/types/scheduleTypes";
+import { type ClassData } from "~/types/scheduleTypes";
 import { useState, useEffect } from "react";
-import useQuery from "@/hooks/useQuery";
 import { FaStar } from "react-icons/fa";
+import {
+  useGetAvgProfessorRating,
+  useGetNumProfessorRatings,
+} from "@repo/backend/course-information";
 
 type DayClassProps = ClassData;
 
@@ -177,19 +180,19 @@ function CourseInfo({
   const professorName: string[] = professor.split(" ");
   const firstName: string = professorName[0] ?? "";
   const lastName: string = professorName.slice(1).join(" ") ?? "";
-  const avgProfessorQuery = useQuery("getAvgProfessorRating", {
+  const avgProfessorQuery = useGetAvgProfessorRating({
     lname: lastName,
     fname: firstName,
   });
   // To test with dummy data, replace "0" with a professor rating of choice in the following line
-  const avgProfessorData: number | undefined = avgProfessorQuery.data ?? 0;
+  const avgProfessorData = avgProfessorQuery.data?.data ?? 0;
   const isAvgZero = avgProfessorData === 0;
-  const numProfessorQuery = useQuery("getNumProfessorRatings", {
+  const numProfessorQuery = useGetNumProfessorRatings({
     lname: lastName,
     fname: firstName,
   });
   // To test with dummy data, replace "0" with a number of reviewings in the following line
-  const numProfessorData: number | undefined = numProfessorQuery.data ?? 0;
+  const numProfessorData = numProfessorQuery.data?.data ?? 0;
   const isNumZero = numProfessorData === 0;
   const defaultPrereq = prereq && prereq.trim() !== "" ? prereq : "None";
   const defaultCorereq = coreq && coreq.trim() !== "" ? coreq : "None";

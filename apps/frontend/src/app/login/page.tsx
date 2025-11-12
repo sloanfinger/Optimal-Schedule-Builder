@@ -1,7 +1,7 @@
 // If returning user -> Home
 // If new user -> Signup
 
-import { Navbar } from "@/components/Navbar";
+import { Navbar } from "~/components/Navbar";
 import Link from "next/link";
 
 export default function Login() {
@@ -13,7 +13,7 @@ export default function Login() {
           <h1 className="text-4xl font-bold md:text-6xl">Login Page</h1>
         </div>
         <div>
-          <button className="rounded-lg bg-bulldog-red px-4 py-2 font-semibold text-white">
+          <button className="bg-bulldog-red rounded-lg px-4 py-2 font-semibold text-white">
             <Link href={"/"}>Home</Link>
           </button>
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { type WeekSchedule as WeekScheduleType } from "@/types/scheduleTypes";
+import { type WeekSchedule as WeekScheduleType } from "~/types/scheduleTypes";
 import { differenceInMinutes } from "date-fns";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PiCaretDoubleRightBold } from "react-icons/pi";
