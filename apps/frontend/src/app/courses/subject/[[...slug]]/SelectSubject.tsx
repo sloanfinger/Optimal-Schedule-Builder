@@ -1,9 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useContext } from "react";
+import { useCallback, useContext } from "react";
 import Combobox from "~/components/ui/Combobox";
-import useLocalStorage from "~/hooks/useLocalStorage";
 import { context } from "../../layout";
 
 interface Props {
@@ -12,23 +10,29 @@ interface Props {
 }
 
 export default function SelectSubject({ defaultValue, options }: Props) {
-  const [_query, setQuery] = useContext(context)!.coursesBySubject;
+  const { stage } = useContext(context)!.coursesBySubject;
+
+  const calculateDisplayText = useCallback(
+    (value?: string) => (value ? options[value] : "Select a Subject"),
+    [options],
+  );
+
+  const handleChange = useCallback(
+    (value?: string) => {
+      stage(() => ({
+        subject: value,
+      }));
+    },
+    [stage],
+  );
 
   return (
     <Combobox
       defaultValue={defaultValue}
-      displayText={(value) =>
-        options && value !== undefined ? options[value] : "Select a Subject"
-      }
+      displayText={calculateDisplayText}
       options={options}
       searchPlaceholder="Search subjects..."
-      onChange={(value) =>
-        setQuery(() => ({
-          courseId: undefined,
-          crns: undefined,
-          subject: value,
-        }))
-      }
+      onChange={handleChange}
     />
   );
 }

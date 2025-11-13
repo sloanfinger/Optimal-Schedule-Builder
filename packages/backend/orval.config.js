@@ -15,7 +15,7 @@ function outputConfig(config) {
   return {
     mode: "split",
     httpClient: "fetch",
-    client: "swr",
+    client: "fetch",
     target: "./index.ts",
     schemas: "./models",
     clean: true,
@@ -30,6 +30,7 @@ export default defineConfig({
       target: await import("@repo/bulletin").catch(() => ({})),
     },
     output: outputConfig({
+      client: "swr",
       workspace: "./dist/client/bulletin",
     }),
   },
@@ -46,6 +47,7 @@ export default defineConfig({
       target: await import("@repo/course-information").catch(() => ({})),
     },
     output: outputConfig({
+      client: "swr",
       workspace: "./dist/client/course-information",
     }),
   },
@@ -62,6 +64,7 @@ export default defineConfig({
       target: await import("@repo/professor-rating").catch(() => ({})),
     },
     output: outputConfig({
+      client: "swr",
       workspace: "./dist/client/professor-rating",
     }),
   },

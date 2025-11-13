@@ -22,18 +22,21 @@
   --wave: 184 52% 63%;
 }
 
-/* For Safari and Chrome */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-/* For older Safari versions */
-.no-scrollbar::-webkit-scrollbar {
-  -webkit-appearance: none;
-}
-
-/* For Internet Explorer and Edge */
-.no-scrollbar {
-  -ms-overflow-style: none;
+.shadow-inner-scroll-y {
+  background:
+    /* Shadow covers */
+    linear-gradient(white 30%, rgba(255,255,255,0)),
+    linear-gradient(rgba(255,255,255,0), white 70%) 0 100%,
+    
+    /* Shadows */
+    radial-gradient(farthest-side at 50% 0, hsla(var(--grout-gray) / .4), hsla(var(--grout-gray) / 0)),
+    radial-gradient(farthest-side at 50% 100%, hsla(var(--grout-gray) / .4), hsla(var(--grout-gray) / 0)) 0 100%;
+  background-repeat: no-repeat;
+  background-color: white;
+  background-size: 100% 3.75rem, 100% 3.75rem, 100% 1.25rem, 100% 1.25rem;
+  
+  /* Opera doesn't support this in the shorthand */
+  background-attachment: local, local, scroll, scroll;
 }
 
 .OuterRingAnimation {

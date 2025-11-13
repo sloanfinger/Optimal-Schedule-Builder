@@ -1,7 +1,35 @@
 package edu.uga.devdogs.course_information;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.core.annotation.Order;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
+
 import edu.uga.devdogs.course_information.Building.Building;
 import edu.uga.devdogs.course_information.Building.BuildingRepository;
 import edu.uga.devdogs.course_information.Class.ClassEntity;
@@ -15,27 +43,6 @@ import edu.uga.devdogs.course_information.Professor.ProfessorRepository;
 import edu.uga.devdogs.course_information.webscraping.Course2;
 import edu.uga.devdogs.course_information.webscraping.DescriptionScraper;
 import edu.uga.devdogs.course_information.webscraping.Pdf;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.*;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.remote.RemoteWebDriver;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.core.annotation.Order;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootApplication
 @EnableTransactionManagement
@@ -134,7 +141,7 @@ public class CourseInformationApplication {
     ProfessorRepository professorRepository
   ) {
     return args -> {
-      ChromeOptions options = new ChromeOptions();
+      FirefoxOptions options = new FirefoxOptions();
       options.addArguments("--headless");
       WebDriver driver = new RemoteWebDriver(
         new URL("http://selenium:4444"),

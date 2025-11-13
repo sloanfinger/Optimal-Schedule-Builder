@@ -41,7 +41,7 @@ function getTextContent(node: ReactNode): string {
   return "";
 }
 
-type Props = {
+type Props<T extends Record<string, ReactNode>> = {
   /**
    * Prevents user input if `true`. The Combobox will display as
    * translucent and use the `not-allowed` cursor when hovered.
@@ -50,7 +50,7 @@ type Props = {
   /**
    * An array of items to render as options.
    */
-  options?: Record<string, ReactNode>;
+  options?: T;
   /**
    * The name passed to the underlying `<select />` element.
    */
@@ -73,39 +73,47 @@ type Props = {
       /**
        * The value for the initially selected option.
        */
-      defaultValue?: string;
+      defaultValue?: keyof T;
       /**
        * Calculate the text to display based on the curretly selected item
        */
-      displayText: (selection?: string) => ReactNode;
+      displayText: (selection?: keyof T) => ReactNode;
       /**
        * Allow selection of multiple items
        */
       multiple?: false;
       /**
        * An event handler which fires when a new item is selected.
-       * @param value The `value` of the selected item(s). This may be `undefined` if the form is reset.
+       * @param value The `value` of the selected item(s)
        */
-      onChange?: (value: string | undefined) => void;
+      onChange?: (value: keyof T | undefined) => void;
+      /**
+       * Controls the value of the Combobox
+       */
+      value?: keyof T;
     }
   | {
       /**
        * The value for the initially selected option.
        */
-      defaultValue?: string[];
+      defaultValue?: (keyof T)[];
       /**
        * Calculate the text to display based on the curretly selected items
        */
-      displayText: (selection: string[]) => ReactNode;
+      displayText: (selection: (keyof T)[]) => ReactNode;
       /**
        * Allow selection of multiple items
        */
       multiple: true;
       /**
        * An event handler which fires when a new item is selected.
-       * @param value The `value` of the selected item(s). This may be `undefined` if the form is reset.
+       * @param value The `value` of the selected item(s)
        */
-      onChange?: (value: string[]) => void;
+      onChange?: (value: (keyof T)[]) => void;
+      /**
+       * Controls the value of the Combobox
+       */
+      value?: (keyof T)[];
     }
 );
 
@@ -119,25 +127,26 @@ type Props = {
  * result in performance issues for excessively long
  * lists of items.
  */
-export default function Combobox({
+export default function Combobox<T extends Record<string, ReactNode>>({
   defaultValue,
   displayText,
   disabled,
   multiple,
   name,
   onChange,
-  options = {},
+  options,
   preserveOrdering,
   required,
   searchPlaceholder,
-}: Props) {
+  value: controlledValue,
+}: Props<T>) {
   const id = useId();
   const fieldsetRef = useRef<HTMLFieldSetElement>(null);
   const selectRef = useRef<HTMLSelectElement>(null);
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState("");
 
-  const [selection, setSelection] = useState<string[]>(
+  const [selection, setSelection] = useState(
     defaultValue
       ? defaultValue instanceof Array
         ? defaultValue
@@ -145,13 +154,27 @@ export default function Combobox({
       : [],
   );
 
+  const values = useMemo(
+    () =>
+      controlledValue
+        ? controlledValue instanceof Array
+          ? controlledValue
+          : [controlledValue]
+        : selection,
+    [controlledValue, selection],
+  );
+
   const matchableOptions = useMemo(
     () =>
-      Object.entries(options).map(([value, content]) => ({
-        value,
-        content,
-        textContent: getTextContent(content),
-      })),
+      options
+        ? (Object.entries(options) as Array<[keyof T, ReactNode]>).map(
+            ([value, content]) => ({
+              value: value,
+              content,
+              textContent: getTextContent(content),
+            }),
+          )
+        : [],
     [options],
   );
 
@@ -168,10 +191,10 @@ export default function Combobox({
     [options, filter, preserveOrdering],
   );
 
-  const [highlighted, setHighlighted] = useState(selection[0]);
+  const [highlighted, setHighlighted] = useState(values[0]);
 
   const select = useCallback(
-    (target: string | undefined) => {
+    (target: keyof T | undefined) => {
       if (!target) {
         return;
       }
@@ -198,7 +221,7 @@ export default function Combobox({
     [],
   );
 
-  const handleOptionChange = useCallback((value: string) => {
+  const handleOptionChange = useCallback((value: keyof T) => {
     setHighlighted(value);
     select(value);
   }, []);
@@ -267,10 +290,10 @@ export default function Combobox({
   useEffect(() => {
     if (!open) {
       setFilter("");
-      setHighlighted(selection[0]);
+      setHighlighted(values[0]);
       setOpen(false);
     }
-  }, [open, selection]);
+  }, [open, values]);
 
   /**
    * When `highlighted` changes, we make sure that the popover
@@ -285,7 +308,7 @@ export default function Combobox({
     requestAnimationFrame(() => {
       const item: HTMLElement | undefined | null =
         fieldsetRef.current?.querySelector(
-          `label:has([name="${name ?? id}"][value="${highlighted}"])`,
+          `label:has([name="${name ?? id}"][value="${String(highlighted)}"])`,
         );
 
       if (!fieldsetRef.current || !item) {
@@ -327,7 +350,7 @@ export default function Combobox({
       onChange?.(selection[0]);
       setOpen(false);
     }
-  }, [selection]);
+  }, [values]);
 
   useEffect(() => {
     setHighlighted(filteredOptions[0]?.value);
@@ -343,35 +366,30 @@ export default function Combobox({
         required={required}
         multiple={multiple || undefined}
         tabIndex={-1}
-        value={multiple ? selection : selection[0]}
+        value={String(multiple ? values : values[0])}
       >
-        {selection.map((value) => (
-          <option key={value} value={value} />
+        {values.map((value) => (
+          <option key={String(value)} value={String(value)} />
         ))}
       </select>
 
       <Popover.Trigger
         disabled={disabled === true || options === undefined}
-        data-loading={disabled !== true && options === undefined}
         asChild
       >
         <button
-          className="border-limestone [&:not(:disabled):hover]:border-pebble-gray flex w-full cursor-default items-center gap-6 rounded-md border-2 bg-white px-3 py-1.5 transition-[box-shadow,border-color] disabled:cursor-not-allowed disabled:opacity-60 data-[state=open]:pointer-events-none data-[loading=true]:cursor-wait [&:not(:disabled):hover]:shadow-sm"
+          className="border-limestone [&:not(:disabled):hover]:border-pebble-gray flex w-full cursor-default items-center gap-6 rounded-md border-2 bg-white px-3 py-1.5 transition-[box-shadow,border-color] disabled:cursor-not-allowed disabled:opacity-60 data-[state=open]:pointer-events-none [&:not(:disabled):hover]:shadow-sm"
           suppressHydrationWarning
         >
           <span className="flex-1 text-left text-neutral-600 peer-has-[option:checked]:hidden">
-            {!disabled && options === undefined
-              ? "Loading..."
-              : multiple
-                ? displayText(selection)
-                : displayText(selection[0])}
+            {multiple ? displayText(values) : displayText(values[0])}
           </span>
           <PiCaretUpDown />
         </button>
       </Popover.Trigger>
 
       <Popover.Portal>
-        <Popover.Content className="border-pebble-gray -mt-(--radix-popover-trigger-height) w-(--radix-popover-trigger-width) flex max-h-56 max-w-[calc(100dvw-1rem)] flex-col gap-1 rounded-md border-2 bg-white px-1 py-1 shadow-lg">
+        <Popover.Content className="border-pebble-gray -mt-(--radix-popover-trigger-height) flex max-h-56 w-(--radix-popover-trigger-width) max-w-[calc(100dvw-1rem)] flex-col gap-1 rounded-md border-2 bg-white px-1 py-1 shadow-lg">
           <label className="peer flex w-full items-center gap-2 rounded-sm bg-neutral-100 px-2 py-1">
             <PiMagnifyingGlass className="text-neutral-700" />
             <input
@@ -390,20 +408,20 @@ export default function Combobox({
             <div className="peer contents">
               {filteredOptions.map(({ value, content }) => (
                 <label
-                  className="data-highlighted:bg-limestone has-checked:font-medium flex snap-start items-center gap-2 rounded-sm py-1 pr-2"
+                  className="data-highlighted:bg-limestone flex snap-start items-center gap-2 rounded-sm py-1 pr-2 has-checked:font-medium"
                   data-highlighted={highlighted === value || undefined}
-                  key={value}
+                  key={String(value)}
                   onMouseEnter={() => setHighlighted(value)}
                 >
                   <input
                     className="peer appearance-none"
                     name={name ?? id}
-                    checked={selection.includes(value)}
+                    checked={values.includes(value)}
                     onChange={() => {
                       handleOptionChange(value);
                     }}
-                    value={value}
-                    type={multiple ? "checkbox" : "radio"}
+                    value={String(value)}
+                    type="checkbox"
                   />
                   <PiCheckBold className="text-midnight-blue opacity-0 peer-checked:opacity-100" />
                   {content}
@@ -411,7 +429,7 @@ export default function Combobox({
               ))}
             </div>
 
-            <p className="hidden px-2 py-1 text-sm italic text-neutral-700 peer-empty:block">
+            <p className="hidden px-2 py-1 text-sm text-neutral-700 italic peer-empty:block">
               No results.
             </p>
           </fieldset>

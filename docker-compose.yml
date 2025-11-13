@@ -6,14 +6,15 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-devdogs}
       MYSQL_TCP_PORT: ${MYSQL_PORT:-3306}
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "mysql"]
       interval: 10s
       timeout: 5s
       retries: 5
     restart: on-failure:3
 
   selenium:
-    image: selenium/standalone-chrome:latest
+    image: selenium/standalone-firefox:latest
+    shm_size: 1gb
     healthcheck:
       test: ["CMD", "curl", "-f", "localhost:4444"]
       interval: 10s
@@ -40,9 +41,9 @@ services:
   bulletin:
     image: gradle:latest
     environment:
-      MYSQL_USER: ${MYSQL_USER:-root}
+      MYSQL_USER: root
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
-      MYSQL_HOST: ${MYSQL_HOST:-localhost}
+      MYSQL_HOST: mysql
       MYSQL_PORT: ${MYSQL_PORT:-3306}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-devdogs}
       MYSQL_JPA_BEHAVIOR: ${MYSQL_JPA_BEHAVIOR:-create-drop}
@@ -75,9 +76,9 @@ services:
   course-information:
     image: gradle:latest
     environment:
-      MYSQL_USER: ${MYSQL_USER:-root}
+      MYSQL_USER: root
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
-      MYSQL_HOST: ${MYSQL_HOST:-localhost}
+      MYSQL_HOST: mysql
       MYSQL_PORT: ${MYSQL_PORT:-3306}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-devdogs}
       MYSQL_JPA_BEHAVIOR: ${MYSQL_JPA_BEHAVIOR:-create-drop}
@@ -110,9 +111,9 @@ services:
   professor-rating:
     image: gradle:latest
     environment:
-      MYSQL_USER: ${MYSQL_USER:-root}
+      MYSQL_USER: root
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
-      MYSQL_HOST: ${MYSQL_HOST:-localhost}
+      MYSQL_HOST: mysql
       MYSQL_PORT: ${MYSQL_PORT:-3306}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-devdogs}
       MYSQL_JPA_BEHAVIOR: ${MYSQL_JPA_BEHAVIOR:-create-drop}

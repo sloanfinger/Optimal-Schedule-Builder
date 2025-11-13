@@ -1,7 +1,7 @@
 import localStorageSchema from "~/schemas/localStorage";
 import { usePathname } from "next/navigation";
 import {
-  type Reducer,
+  type Dispatch,
   SetStateAction,
   useCallback,
   useEffect,
@@ -35,7 +35,10 @@ interface Options {
 export default function useLocalStorage<K extends keyof LocalStorageSchema>(
   key: K,
   options?: Options,
-) {
+): [
+  z.infer<LocalStorageSchema[K]>,
+  Dispatch<SetStateAction<z.infer<LocalStorageSchema[K]>>>,
+] {
   if (
     !localStorageSchema[key].isNullable() &&
     !("removeCatch" in localStorageSchema[key])
@@ -107,5 +110,5 @@ export default function useLocalStorage<K extends keyof LocalStorageSchema>(
     return () => controller.abort();
   }, [key, schema, setState, handleStorage]);
 
-  return [state, setState] as const;
+  return [state, setState];
 }

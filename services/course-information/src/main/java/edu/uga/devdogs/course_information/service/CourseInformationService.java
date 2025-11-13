@@ -67,12 +67,11 @@ public class CourseInformationService {
 
   @Autowired
   public CourseInformationService(
-    CourseSectionRepository courseSectionRepository,
-    ClassRepository classRepository,
-    CourseRepository courseRepository,
-    BuildingRepository buildingRepository,
-    ProfessorRepository professorRepository
-  ) {
+      CourseSectionRepository courseSectionRepository,
+      ClassRepository classRepository,
+      CourseRepository courseRepository,
+      BuildingRepository buildingRepository,
+      ProfessorRepository professorRepository) {
     this.courseSectionRepository = courseSectionRepository;
     this.classRepository = classRepository;
     this.courseRepository = courseRepository;
@@ -93,10 +92,11 @@ public class CourseInformationService {
     int intcrn = Integer.parseInt(crn);
     returnList = courseSectionRepository.findByCrn(intcrn);
 
-    if (returnList != null) return returnList;
-    else throw new ProfessorNotFoundException(
-      "Section details not found for CRN: " + crn
-    );
+    if (returnList != null)
+      return returnList;
+    else
+      throw new ProfessorNotFoundException(
+          "Section details not found for CRN: " + crn);
   }
 
   /**
@@ -118,13 +118,11 @@ public class CourseInformationService {
         return course;
       } else {
         throw new CourseNotFoundException(
-          "Course details not found for CRN: " + crn
-        );
+            "Course details not found for CRN: " + crn);
       }
     } else {
       throw new CourseNotFoundException(
-        "No course section found with CRN: " + crn
-      );
+          "No course section found with CRN: " + crn);
     }
   }
 
@@ -143,8 +141,7 @@ public class CourseInformationService {
       return returnList;
     } else {
       throw new CourseNotFoundException(
-        "Courses not found for major: " + major
-      );
+          "Courses not found for major: " + major);
     }
   }
 
@@ -156,18 +153,15 @@ public class CourseInformationService {
    * @throws ProfessorNotFoundException if the professor is not found
    */
   public List<CourseSection> getCourseSectionsByProfessor(
-    String professorName
-  ) {
+      String professorName) {
     // Fetch course sections by professor name
-    List<CourseSection> returnList =
-      courseSectionRepository.findAllByInstructor(professorName);
+    List<CourseSection> returnList = courseSectionRepository.findAllByInstructor(professorName);
 
     if (returnList != null) {
       return returnList;
     } else {
       throw new ProfessorNotFoundException(
-        String.format("Professor %s not found!", professorName)
-      );
+          String.format("Professor %s not found!", professorName));
     }
   }
 
@@ -266,16 +260,13 @@ public class CourseInformationService {
    * @throws ProfessorNotFoundException if the professor is not found
    */
   public float getProfessorAverageRating(String lastName, String firstName) {
-    Professor professor =
-      professorRepository.findByLastNameAndFirstNameIgnoreCase(
+    Professor professor = professorRepository.findByLastNameAndFirstNameIgnoreCase(
         lastName,
-        firstName
-      );
+        firstName);
 
     if (professor == null) {
       throw new ProfessorNotFoundException(
-        "Professor " + firstName + " " + lastName + " not found"
-      );
+          "Professor " + firstName + " " + lastName + " not found");
     }
 
     return professor.getAverageRating();
@@ -290,16 +281,13 @@ public class CourseInformationService {
    * @throws ProfessorNotFoundException if the professor is not found
    */
   public int getProfessorTotalReviews(String lastName, String firstName) {
-    Professor professor =
-      professorRepository.findByLastNameAndFirstNameIgnoreCase(
+    Professor professor = professorRepository.findByLastNameAndFirstNameIgnoreCase(
         lastName,
-        firstName
-      );
+        firstName);
 
     if (professor == null) {
       throw new ProfessorNotFoundException(
-        "Professor " + firstName + " " + lastName + " not found"
-      );
+          "Professor " + firstName + " " + lastName + " not found");
     }
 
     return professor.getTotalReviews(); // Assuming totalReviews is an int field in Professor entity
@@ -344,38 +332,30 @@ public class CourseInformationService {
   }
 
   public List<List<Integer>> getRecommendedSchedules(
-    List<String> inputCourseIDs,
-    String gapDay,
-    int prefStartTime,
-    int prefEndTime,
-    boolean showFilledClasses,
-    List<String> excludedCourseIDs,
-    List<Integer> excludedSectionCrns,
-    String inputCampus,
-    int minCreditHours,
-    int maxCreditHours,
-    boolean walking
-  ) {
-    Set<
-      edu.uga.devdogs.course_information.Algorithm.records.Course
-    > inputCourses = new HashSet<>();
+      List<String> inputCourseIDs,
+      String gapDay,
+      int prefStartTime,
+      int prefEndTime,
+      boolean showFilledClasses,
+      List<String> excludedCourseIDs,
+      List<Integer> excludedSectionCrns,
+      String inputCampus,
+      int minCreditHours,
+      int maxCreditHours,
+      boolean walking) {
+    Set<edu.uga.devdogs.course_information.Algorithm.records.Course> inputCourses = new HashSet<>();
 
     DayOfWeek dayOfWeekGapDay = BruteForceUtil.daySwitch(gapDay);
-    String prefStartTimeString = prefStartTime + ":00";
-    LocalTime localTimePrefStartTime = LocalTime.parse(prefStartTimeString);
-    String prefEndTimeString = prefEndTime + ":00";
-    LocalTime localTimePrefEndTime = LocalTime.parse(prefEndTimeString);
+    LocalTime localTimePrefStartTime = LocalTime.of(prefStartTime, 0);
+    LocalTime localTimePrefEndTime = LocalTime.of(prefEndTime, 0);
 
     SConstraints softConstraints = new SConstraints(
-      dayOfWeekGapDay,
-      localTimePrefStartTime,
-      localTimePrefEndTime,
-      showFilledClasses
-    );
+        dayOfWeekGapDay,
+        localTimePrefStartTime,
+        localTimePrefEndTime,
+        showFilledClasses);
 
-    List<
-      edu.uga.devdogs.course_information.Algorithm.records.Course
-    > excludedCourses = new ArrayList<>();
+    List<edu.uga.devdogs.course_information.Algorithm.records.Course> excludedCourses = new ArrayList<>();
 
     // Building input courses list from given course IDs
 
@@ -383,9 +363,8 @@ public class CourseInformationService {
       String subject = courseID.substring(0, 4);
       String courseNumber = courseID.substring(4);
       Course course = courseRepository.findBySubjectAndCourseNumber(
-        subject,
-        courseNumber
-      );
+          subject,
+          courseNumber);
 
       List<Section> sections = new ArrayList<>();
 
@@ -393,13 +372,11 @@ public class CourseInformationService {
         int crn = courseSection.getCrn();
         String profLastName = courseSection.getInstructor();
         float rating = professorRepository
-          .findByLastName(profLastName)
-          .getAverageRating();
-        edu.uga.devdogs.course_information.Algorithm.records.Professor professor =
-          new edu.uga.devdogs.course_information.Algorithm.records.Professor(
+            .findByLastName(profLastName)
+            .getAverageRating();
+        edu.uga.devdogs.course_information.Algorithm.records.Professor professor = new edu.uga.devdogs.course_information.Algorithm.records.Professor(
             profLastName,
-            rating
-          );
+            rating);
 
         List<Class> classes = new ArrayList<>();
 
@@ -408,61 +385,52 @@ public class CourseInformationService {
           List<DayOfWeek> daysList = new ArrayList<>();
           for (int i = 0; i < daysString.length(); i++) {
             daysList.add(
-              BruteForceUtil.daySwitch(daysString.substring(i, i + 1))
-            );
+                BruteForceUtil.daySwitch(daysString.substring(i, i + 1)));
           }
           LocalTime startTime = classEntity.getStartTime();
           LocalTime endTime = classEntity.getEndTime();
           String buildingName = classEntity.getBuilding().getName();
           String campus = classEntity.getCampus();
           String buildingNumber = String.valueOf(
-            classEntity.getBuilding().getBuildingCode()
-          );
+              classEntity.getBuilding().getBuildingCode());
           classes.add(
-            new Class(
-              crn,
-              daysList,
-              startTime,
-              endTime,
-              buildingName,
-              campus,
-              buildingNumber
-            )
-          );
+              new Class(
+                  crn,
+                  daysList,
+                  startTime,
+                  endTime,
+                  buildingName,
+                  campus,
+                  buildingNumber));
         }
         sections.add(new Section(courseNumber, crn, professor, classes));
       }
       inputCourses.add(
-        new edu.uga.devdogs.course_information.Algorithm.records.Course(
-          courseNumber,
-          sections
-        )
-      );
+          new edu.uga.devdogs.course_information.Algorithm.records.Course(
+              courseNumber,
+              sections));
     }
 
-    //building excluded courses list from given course IDs
+    // building excluded courses list from given course IDs
 
     for (String courseID : excludedCourseIDs) {
       String subject = courseID.substring(0, 4);
       String courseNumber = courseID.substring(4);
       Course course = courseRepository.findBySubjectAndCourseNumber(
-        subject,
-        courseNumber
-      );
+          subject,
+          courseNumber);
 
       List<Section> sections = new ArrayList<>();
 
       for (CourseSection courseSection : course.getCourseSections()) {
-        //we get the professor
+        // we get the professor
         String profLastName = courseSection.getInstructor();
         float rating = professorRepository
-          .findByLastName(profLastName)
-          .getAverageRating();
-        edu.uga.devdogs.course_information.Algorithm.records.Professor professor =
-          new edu.uga.devdogs.course_information.Algorithm.records.Professor(
+            .findByLastName(profLastName)
+            .getAverageRating();
+        edu.uga.devdogs.course_information.Algorithm.records.Professor professor = new edu.uga.devdogs.course_information.Algorithm.records.Professor(
             profLastName,
-            rating
-          );
+            rating);
 
         int crn = courseSection.getCrn();
 
@@ -473,37 +441,31 @@ public class CourseInformationService {
           List<DayOfWeek> daysList = new ArrayList<>();
           for (int i = 0; i < daysString.length(); i++) {
             daysList.add(
-              BruteForceUtil.daySwitch(daysString.substring(i, i + 1))
-            );
+                BruteForceUtil.daySwitch(daysString.substring(i, i + 1)));
           }
           LocalTime startTime = classEntity.getStartTime();
           LocalTime endTime = classEntity.getEndTime();
           String buildingName = classEntity.getBuilding().getName();
           String campus = classEntity.getCampus();
           String buildingNumber = String.valueOf(
-            classEntity.getBuilding().getBuildingCode()
-          );
+              classEntity.getBuilding().getBuildingCode());
           classes.add(
-            new Class(
-              crn,
-              daysList,
-              startTime,
-              endTime,
-              buildingName,
-              campus,
-              buildingNumber
-            )
-          );
+              new Class(
+                  crn,
+                  daysList,
+                  startTime,
+                  endTime,
+                  buildingName,
+                  campus,
+                  buildingNumber));
         }
         sections.add(new Section(courseNumber, crn, professor, classes));
       }
 
       excludedCourses.add(
-        new edu.uga.devdogs.course_information.Algorithm.records.Course(
-          courseNumber,
-          sections
-        )
-      );
+          new edu.uga.devdogs.course_information.Algorithm.records.Course(
+              courseNumber,
+              sections));
     }
 
     // building excluded sections list from given crns
@@ -515,13 +477,11 @@ public class CourseInformationService {
       String courseNumber = courseSection.getCourse().getCourseNumber();
       String profLastName = courseSection.getInstructor();
       float rating = professorRepository
-        .findByLastName(profLastName)
-        .getAverageRating();
-      edu.uga.devdogs.course_information.Algorithm.records.Professor professor =
-        new edu.uga.devdogs.course_information.Algorithm.records.Professor(
+          .findByLastName(profLastName)
+          .getAverageRating();
+      edu.uga.devdogs.course_information.Algorithm.records.Professor professor = new edu.uga.devdogs.course_information.Algorithm.records.Professor(
           profLastName,
-          rating
-        );
+          rating);
 
       List<Class> classes = new ArrayList<>();
 
@@ -530,47 +490,41 @@ public class CourseInformationService {
         List<DayOfWeek> daysList = new ArrayList<>();
         for (int i = 0; i < daysString.length(); i++) {
           daysList.add(
-            BruteForceUtil.daySwitch(daysString.substring(i, i + 1))
-          );
+              BruteForceUtil.daySwitch(daysString.substring(i, i + 1)));
         }
         LocalTime startTime = classEntity.getStartTime();
         LocalTime endTime = classEntity.getEndTime();
         String buildingName = classEntity.getBuilding().getName();
         String campus = classEntity.getCampus();
         String buildingNumber = String.valueOf(
-          classEntity.getBuilding().getBuildingCode()
-        );
+            classEntity.getBuilding().getBuildingCode());
         classes.add(
-          new Class(
-            crn,
-            daysList,
-            startTime,
-            endTime,
-            buildingName,
-            campus,
-            buildingNumber
-          )
-        );
+            new Class(
+                crn,
+                daysList,
+                startTime,
+                endTime,
+                buildingName,
+                campus,
+                buildingNumber));
       }
 
       excludedSections.add(new Section(courseNumber, crn, professor, classes));
     }
 
     HConstraints hardConstraints = new HConstraints(
-      excludedCourses,
-      excludedSections,
-      inputCampus,
-      minCreditHours,
-      maxCreditHours,
-      walking
-    );
+        excludedCourses,
+        excludedSections,
+        inputCampus,
+        minCreditHours,
+        maxCreditHours,
+        walking);
 
     // retrieving recommended schedules from algorithm
     int[][] schedulesArray = BruteForcePrototype.algorithmDriver(
-      inputCourses,
-      softConstraints,
-      hardConstraints
-    );
+        inputCourses,
+        softConstraints,
+        hardConstraints);
 
     // copying from 2D array to nested List
 

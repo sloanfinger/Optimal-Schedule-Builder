@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { PiGear } from "react-icons/pi";
-import ModeSwitch from "@/components/ModeSwitch";
+import ModeSwitch from "~/components/ModeSwitch";
 
 // Custom hook for scroll direction
 function useScrollDirection() {

@@ -1,9 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useContext, type ReactNode } from "react";
+import { useCallback, useContext, type ReactNode } from "react";
 import Combobox from "~/components/ui/Combobox";
-import useLocalStorage from "~/hooks/useLocalStorage";
 import { context } from "../../layout";
 
 interface Props {
@@ -12,23 +10,39 @@ interface Props {
 }
 
 export default function SelectCourse({ defaultValue, options }: Props) {
-  const [_query, setQuery] = useContext(context)!.coursesBySubject;
+  const { stage } = useContext(context)!.coursesBySubject;
+
+  const calculateDisplayText = useCallback(
+    (value?: string) =>
+      options
+        ? value
+          ? options[value]
+          : "Select a Course"
+        : "Awaiting subject selection...",
+    [options],
+  );
+
+  const handleChange = useCallback((value?: string) => {
+    if (!value) {
+      return stage((current) => ({
+        subject: current.subject,
+      }));
+    }
+
+    stage((current) => ({
+      subject: current.subject,
+      courseNumber: Number(value),
+      excludedCrns: [],
+    }));
+  }, []);
 
   return (
     <Combobox
       defaultValue={defaultValue}
-      displayText={(value) =>
-        options && value !== undefined ? options[value] : "Select a Course"
-      }
+      displayText={calculateDisplayText}
       options={options}
       searchPlaceholder="Search subjects..."
-      onChange={(value) =>
-        setQuery((q) => ({
-          courseId: value,
-          crns: undefined,
-          subject: q.subject,
-        }))
-      }
+      onChange={handleChange}
     />
   );
 }

@@ -15,12 +15,13 @@
   },
   "scripts": {
     "build": "turbo generateOpenApiclient",
-    "generateOpenApiClient": "orval",
+    "generateOpenApiClient": "dotenv orval",
     "dev": "turbo watch dev:generateOpenApiClient",
-    "dev:generateOpenApiClient": "orval"
+    "dev:generateOpenApiClient": "dotenv orval"
   },
   "devDependencies": {
     "@types/react": "^18.3.18",
+    "dotenv-cli": "^11.0.0",
     "orval": "^7.16.0",
     "react": "^18.3.1",
     "swr": "^2.3.6"

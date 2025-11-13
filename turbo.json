@@ -1,14 +1,6 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "globalPassThroughEnv": [
-    "SKIP_ENV_VALIDATION",
-    "MYSQL_USER",
-    "MYSQL_PASSWORD",
-    "MYSQL_HOST",
-    "MYSQLPORT",
-    "MYSQL_DATABASE",
-    "MYSQL_JPA_BEHAVIOR"
-  ],
+  "globalPassThroughEnv": ["SKIP_ENV_VALIDATION"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -28,6 +20,14 @@
       "persistent": true
     },
     "dev:bootRun": {
+      "passThroughEnv": [
+        "MYSQL_USER",
+        "MYSQL_PASSWORD",
+        "MYSQL_HOST",
+        "MYSQLPORT",
+        "MYSQL_DATABASE",
+        "MYSQL_JPA_BEHAVIOR"
+      ],
       "persistent": true
     },
     "dev:generateOpenApiDocs": {

@@ -3,10 +3,8 @@ package edu.uga.devdogs.course_information.webscraping;
 // Removed incorrect import for jakarta.xml.bind.Element
 
 import java.time.Duration;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import java.util.NoSuchElementException;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -38,40 +36,21 @@ public class DescriptionScraper {
       ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
 
       wait.until(
-        ExpectedConditions.presenceOfElementLocated(
-          By.id("lblCourseResultText")
-        )
-      );
-      Document document = Jsoup.parse(driver.getPageSource());
+          ExpectedConditions.presenceOfElementLocated(
+              By.id("paginationContent")));
 
-      Element courseResults = document.getElementById("paginationContent");
-      if (courseResults == null) return "Description not found";
-
-      Elements resultsTables = courseResults.getElementsByClass(
-        "course-card--bottom"
-      );
-      boolean isDescription = false;
-
-      for (Element table : resultsTables) {
-        for (Element data : table.getElementsByTag("p")) {
-          String text = data.text().trim();
-          if (text.contains("Description")) {
-            isDescription = true;
-          } else if (isDescription) {
-            return text;
-          }
-        }
-      }
+      return driver.findElement(By.cssSelector("#paginationContent > .course-card > .course-card--bottom > p"))
+          .getText().trim();
+    } catch (NoSuchElementException e) {
       return "Description not found";
     } catch (Exception e) {
       System.err.println(
-        "Error fetching course description (" +
-          coursePrefix +
-          " " +
-          courseSuffix +
-          "): " +
-          e.getMessage()
-      );
+          "Error fetching course description (" +
+              coursePrefix +
+              " " +
+              courseSuffix +
+              "): " +
+              e.getMessage());
       return "Error retrieving description";
     }
   }
